@@ -19,6 +19,23 @@ const today = () => partsNow().date;
 const nowTime = () => partsNow().time;
 const now = () => { const p = partsNow(); return `${p.date} ${p.time}`; };
 
+const formatoDesfase = new Intl.DateTimeFormat('en-GB', { timeZone, timeZoneName: 'longOffset' });
+function desfaseMs(instante) {
+  const zona = formatoDesfase.formatToParts(instante).find((p) => p.type === 'timeZoneName').value;
+  if (zona === 'GMT') return 0;
+  const [horas, minutos] = zona.slice(4).split(':').map(Number);
+  return (zona[3] === '-' ? -1 : 1) * (horas * 60 + minutos) * 60_000;
+}
+
+function instanteLocal(fecha, hora) {
+  const local = Date.parse(`${fecha}T${hora}Z`);
+  const anterior = local - desfaseMs(local - 86_400_000);
+  const posterior = local - desfaseMs(local + 86_400_000);
+  // En otoño se usa la primera hora repetida. En primavera se adelanta la hora inexistente.
+  if (anterior + desfaseMs(anterior) === local) return anterior;
+  return posterior + desfaseMs(posterior) === local ? posterior : anterior;
+}
+
 function toDate(iso) {
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d));
@@ -102,7 +119,7 @@ function periodoVecino(p, paso) {
 }
 
 module.exports = {
-  today, now, nowTime, addDays, addYears, diffDays, anio, corta, diaMes, larga, media, diaHora,
+  today, now, nowTime, instanteLocal, addDays, addYears, diffDays, anio, corta, diaMes, larga, media, diaHora,
   mesAbrMayus, nombreMes, diaSemana, edad, parseFecha, isoToDmy, periodoDe, periodoPorClave, etiquetaPeriodo,
   etiquetaPeriodoCorta, periodoVecino, cap,
 };

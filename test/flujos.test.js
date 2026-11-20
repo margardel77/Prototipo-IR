@@ -84,6 +84,37 @@ test('registro en tres pasos: pago rechazado, pago aprobado, revisión y alta po
   assert.match(cuota.text, /Tarjeta \(simulación\)/);
 });
 
+test('desapuntarse solo está disponible con más de 24 horas de antelación', async (t) => {
+  const limite = Date.parse('2026-11-21T08:00:00Z');
+  t.mock.timers.enable({ apis: ['Date'], now: limite });
+  const a = cliente();
+  await a.login('socioa@example.com');
+  const salida = db.get("SELECT id FROM salidas WHERE fecha='2026-11-22'");
+  const detalle = `/salidas/${salida.id}`;
+  const accion = `${detalle}/desapuntarme`;
+  const inscripciones = () => db.get('SELECT COUNT(*) AS total FROM inscripciones WHERE salida_id=?', salida.id).total;
+  const totalInicial = inscripciones();
+  assert.doesNotMatch((await a.req(detalle)).text, /data-inscripcion-url="[^"]+\/desapuntarme"/);
+  const bloqueada = await a.req(accion, { method: 'POST', form: {} });
+  assert.equal(bloqueada.location, detalle);
+  assert.match((await a.req(detalle)).text, /más de 24 horas/);
+  assert.equal(inscripciones(), totalInicial);
+
+  t.mock.timers.setTime(limite - 1);
+  for (const pagina of ['/salidas', detalle]) {
+    const { text } = await a.req(pagina);
+    assert.match(text, /<div class="[^"]*inscripcion-acciones">\s*<[^>]+>Apuntado<\/[^>]+>\s*<button class="btn btn-danger"[^>]*>Cancelar<\/button>/);
+    assert.ok(text.includes(`data-inscripcion-url="${accion}"`));
+  }
+  const cancelada = await a.req(accion, { method: 'POST', form: { volver: 'listado', socio_id: 3 } });
+  assert.equal(cancelada.location, '/salidas');
+  assert.match((await a.req('/salidas')).text, /Has cancelado tu inscripción/);
+  assert.equal(inscripciones(), totalInicial - 1);
+  assert.equal(db.get('SELECT socio_id FROM inscripciones WHERE salida_id=?', salida.id).socio_id, 3);
+  assert.equal((await a.req(accion, { method: 'POST', form: {} })).location, detalle);
+  assert.equal(inscripciones(), totalInicial - 1);
+});
+
 test('socio: apuntarse, declarar con foto y la directiva valida (puntos y clasificación)', async () => {
   const ej = cliente();
   await ej.login('socio@example.com');

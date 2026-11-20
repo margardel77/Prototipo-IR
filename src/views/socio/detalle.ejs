@@ -50,7 +50,18 @@
         <% if (salida.estado === 'CANCELADA') { %>
           <span class="btn btn-secondary btn-block is-disabled det-btn1">Salida cancelada</span>
         <% } else if (decl.inscrito) { %>
-          <span class="btn btn-secondary btn-block is-disabled det-btn1">Apuntado</span>
+          <div class="det-btn1 inscripcion-acciones">
+            <span class="btn btn-secondary is-disabled">Apuntado</span>
+            <% if (!motivoNoDesapuntarse) { %>
+              <button class="btn btn-danger" type="button" aria-haspopup="dialog"
+                data-inscripcion-url="/salidas/<%= salida.id %>/desapuntarme"
+                data-inscripcion-titulo="Cancelar inscripción"
+                data-inscripcion-mensaje="¿Quieres desapuntarte de la salida «<%= salida.ruta_nombre %>» del <%= dates.corta(salida.fecha) %>?">Cancelar</button>
+            <% } %>
+          </div>
+          <% if (motivoNoDesapuntarse) { %>
+            <p class="muted small det-plazo"><%= motivoNoDesapuntarse %></p>
+          <% } %>
         <% } else if (!plazo.abierto) { %>
           <span class="btn btn-secondary btn-block is-disabled det-btn1">Plazo cerrado</span>
           <p class="muted small det-plazo">En las salidas especiales puedes apuntarte del <%= dates.corta(plazo.apertura) %> al <%= dates.corta(dates.addDays(plazo.cierre, -1)) %>.</p>
@@ -87,4 +98,7 @@
   </div>
 </div>
 <div class="page-bottom det-bottom"></div>
+<% if (decl.inscrito && salida.estado !== 'CANCELADA' && !motivoNoDesapuntarse) { %>
+  <%- include('../partials/confirmar-inscripcion', { volver: 'detalle' }) %>
+<% } %>
 <%- include('../partials/bottom', { variant: 'socio' }) %>

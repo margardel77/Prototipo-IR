@@ -1,4 +1,6 @@
 'use strict';
+const { statSync } = require('node:fs');
+const path = require('node:path');
 const config = require('../config');
 const dates = require('./dates');
 const fmt = require('./format');
@@ -6,10 +8,15 @@ const socios = require('../services/socios');
 const junta = require('../services/junta');
 
 const VERSION_ESTATICOS = Date.now().toString(36);
+const RUTA_ESTILOS = path.join(config.root, 'src', 'public', 'css', 'styles.css');
 
 // Variables comunes para todas las vistas
 function contexto(req, res, next) {
   res.locals.v = VERSION_ESTATICOS;
+  // El modo watch puede servir cambios de CSS sin reiniciar el servidor.
+  res.locals.vCss = process.env.NODE_ENV === 'production'
+    ? VERSION_ESTATICOS
+    : statSync(RUTA_ESTILOS).mtimeMs.toString(36);
   const s = req.session || {};
   let usuario = null;
   if (s.socioId) {

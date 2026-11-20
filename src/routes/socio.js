@@ -42,9 +42,12 @@ function cargarSalida(req, res, next) {
 
 // ---- Salidas ----
 router.get('/salidas', requireSocio, (req, res) => {
-  const lista = salidas.calendario({ socioId: req.usuario.id }).map((s) => ({
-    ...s, inscrito: salidas.estaInscrito(s.id, req.usuario.id), plazo: salidas.plazoConsulta(s, dates.today()),
-  }));
+  const ahora = Date.now();
+  const lista = salidas.calendario({ socioId: req.usuario.id }).map((s) => {
+    const inscrito = salidas.estaInscrito(s.id, req.usuario.id);
+    const puedeDesapuntarse = inscrito && !salidas.motivoNoDesapuntarse(s, req.usuario.id, ahora);
+    return { ...s, inscrito, puedeDesapuntarse, plazo: salidas.plazoConsulta(s, dates.today()) };
+  });
   res.render('socio/salidas', { titulo: 'Salidas del club', nav: 'salidas', salidas: lista, grupos: agruparPorMes(lista) });
 });
 
@@ -53,6 +56,7 @@ router.get('/salidas/:id', requireSocio, cargarSalida, (req, res) => {
     titulo: req.salida.ruta_nombre, nav: 'salidas',
     inscritos: salidas.inscritos(req.salida.id),
     plazo: salidas.plazoConsulta(req.salida, dates.today()),
+    motivoNoDesapuntarse: res.locals.decl.inscrito ? salidas.motivoNoDesapuntarse(req.salida, req.usuario.id) : null,
   });
 });
 
@@ -69,6 +73,20 @@ router.post('/salidas/:id/apuntarme', requireSocio, cargarSalida, (req, res) => 
 router.get('/salidas/:id/inscripcion', requireSocio, cargarSalida, (req, res) => {
   if (!res.locals.decl.inscrito) return res.redirect(`/salidas/${req.salida.id}`);
   res.render('socio/inscripcion', { titulo: 'Inscripción registrada', nav: 'salidas' });
+});
+
+router.post('/salidas/:id/desapuntarme', requireSocio, cargarSalida, (req, res) => {
+  const detalle = `/salidas/${req.salida.id}`;
+  const volver = req.body.volver === 'listado' ? '/salidas' : detalle;
+  try {
+    if (salidas.desapuntar(req.salida.id, req.usuario.id)) {
+      flash(req, 'ok', 'Has cancelado tu inscripción a la salida.');
+    }
+  } catch (e) {
+    if (!(e instanceof ReglaError)) throw e;
+    flash(req, 'error', e.message);
+  }
+  return res.redirect(volver);
 });
 
 router.get('/salidas/:id/declarar', requireSocio, cargarSalida, (req, res) => {
