@@ -1,0 +1,18 @@
+<%# Pago simulado rechazado (mockups 26 y 43). Parámetros: eyebrow, btn1, btn2 %>
+<div class="container page pago-ko-page">
+  <div class="center-card">
+    <div class="eyebrow"><%= eyebrow %></div>
+    <section class="card">
+      <span class="tag tag--danger">Pago rechazado · Simulación</span>
+      <h1>No se ha completado el pago</h1>
+      <p class="lead">La tarjeta de prueba no ha sido aceptada.</p>
+      <p class="importe">Cuota anual <%= anio %> · <%= fmt.euros(importe) %></p>
+      <p class="txt">No hay ningún cargo ni pago registrado. Puedes volver al pago y reintentarlo.<br>Este es un resultado de ejemplo para la presentación.</p>
+      <div class="btn-pair">
+        <a class="btn btn-primary btn-lg" href="<%= btn1[1] %>"><%= btn1[0] %></a>
+        <a class="btn btn-secondary btn-lg" href="<%= btn2[1] %>"><%= btn2[0] %></a>
+      </div>
+      <p class="nota">Demostración: no se procesa dinero ni se guardan datos de tarjeta.</p>
+    </section>
+  </div>
+</div>

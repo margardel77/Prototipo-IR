@@ -1,0 +1,25 @@
+{
+  "name": "club-ciclista-brenes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de información del Club Ciclista de Brenes (IR2627-G1-13)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/db/seed.js --reset",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.5",
+    "bcryptjs": "^2.4.3",
+    "cookie-session": "^2.1.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "multer": "^2.0.2",
+    "nodemailer": "^10.6.1"
+  }
+}

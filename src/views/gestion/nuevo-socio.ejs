@@ -1,0 +1,41 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<%
+  const err = (k) => errores[k] ? `<div class="field-error">${errores[k]}</div>` : '';
+  const cls = (k) => errores[k] ? 'input input--md has-error' : 'input input--md';
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const val = (k) => esc(valores[k] || '');
+  const campo = (k, etiqueta, ph, extra = '') => `
+    <div class="ns-campo">
+      <label class="ns-label" for="${k}">${etiqueta} *</label>
+      <input class="${cls(k)}" id="${k}" name="${k}" placeholder="${ph}" value="${val(k)}" ${extra}>
+      ${err(k)}
+    </div>`;
+%>
+<div class="container page nuevo-socio-page">
+  <div class="page-head">
+    <h1>Nuevo socio</h1>
+    <p class="sub">Introduce los datos del nuevo socio. Todos los campos son obligatorios.</p>
+  </div>
+  <%- include('../partials/flash') %>
+  <section class="card ns-card">
+    <form method="post" action="/gestion/socios/nuevo" novalidate>
+      <div class="ns-grid">
+        <%- campo('nombre', 'Nombre', 'Tu nombre', 'autocomplete="off" required') %>
+        <%- campo('apellidos', 'Apellidos', 'Tus apellidos', 'autocomplete="off" required') %>
+        <%- campo('fecha_nacimiento', 'Fecha de nacimiento', 'DD/MM/AAAA', 'inputmode="numeric" autocomplete="off" data-mask-date required') %>
+        <%- campo('telefono', 'Teléfono', 'Teléfono de contacto', 'type="tel" autocomplete="off" required') %>
+        <div class="ns-full"><%- campo('direccion', 'Dirección', 'Calle, número, localidad y código postal', 'autocomplete="off" required') %></div>
+        <div class="ns-full"><%- campo('email', 'Email', 'Correo electrónico', 'type="email" autocomplete="off" required') %></div>
+        <%- campo('password', 'Contraseña', 'Crea una contraseña', 'type="password" autocomplete="new-password" minlength="8" required') %>
+        <%- campo('password2', 'Confirmar contraseña', 'Repite la contraseña', 'type="password" autocomplete="new-password" required') %>
+      </div>
+      <p class="ns-ayuda">Usa al menos 8 caracteres para la contraseña.</p>
+      <div class="ns-botones">
+        <button class="btn btn-primary ns-crear" type="submit">Crear socio</button>
+        <a class="btn btn-secondary ns-cancelar" href="/gestion/socios">Cancelar</a>
+      </div>
+    </form>
+  </section>
+</div>
+<div class="page-bottom ns-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

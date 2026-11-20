@@ -1,0 +1,11 @@
+<%- include('../partials/top', { variant: 'acceso', etiqueta: 'Registro' }) %>
+<%- include('../partials/pago-ok', {
+  eyebrow: 'Paso 3 de 3 · Confirmación',
+  lead: `Tu solicitud de registro y la cuota de ${fmt.euros(importe)} se han completado en esta demostración.`,
+  txt: 'La directiva revisará tus datos antes de activar la cuenta.<br>El pago simulado no activa automáticamente tu condición de socio.',
+  descargarUrl: '/registro/comprobante.pdf',
+  btn1: ['Volver al inicio de sesión', '/acceso'], btn2: ['Consultar salidas públicas', '/'],
+  nota: 'Demostración: no se ha cobrado dinero ni se ha creado una cuenta real.',
+}) %>
+<div class="page-bottom pago-ok-bottom is-auth"></div>
+<%- include('../partials/bottom', { variant: 'acceso', pieIzq: 'Club Ciclista de Brenes · Registro' }) %>

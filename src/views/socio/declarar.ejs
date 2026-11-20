@@ -1,0 +1,50 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<% const dia = dates.diaSemana(salida.fecha); const puede = decl.estado === 'DISPONIBLE'; %>
+<div class="container page declarar-page">
+  <div class="page-head">
+    <h1>Declarar asistencia</h1>
+    <p class="sub"><%= salida.ruta_nombre %> · <%= dates.corta(salida.fecha) %> · <%= salida.hora %></p>
+  </div>
+  <%- include('../partials/flash') %>
+  <form method="post" action="/salidas/<%= salida.id %>/declarar" enctype="multipart/form-data">
+    <div class="grid grid-main-side">
+      <section class="card dcl-card">
+        <h2 class="card-title">Mi participación</h2>
+        <div class="dcl-f dcl-f1"><div class="field-label">Salida</div><div class="dcl-v"><%= salida.ruta_nombre %></div></div>
+        <div class="dcl-f"><div class="field-label">Evidencia de asistencia</div><div class="dcl-v" data-file-name><%= puede ? 'Sin archivo seleccionado' : 'foto-salida.jpg' %></div></div>
+        <div class="dcl-f"><div class="field-label">Validación</div><div class="dcl-v">Se revisará tras enviar la declaración</div></div>
+        <p class="dcl-txt">
+          <% if (decl.estado === 'NO_INSCRITO') { %>Apúntate a esta salida para declarar tu asistencia.
+          <% } else if (decl.estado === 'ANTES') { %>Podrás declarar tu asistencia desde el <%= dia %> de la salida.
+          <% } else if (puede) { %>Solo puedes enviar una declaración por salida.
+          <% } else { %>No se puede declarar la asistencia a esta salida.<% } %>
+        </p>
+        <% if (puede) { %>
+          <button class="btn btn-primary dcl-btn" type="submit">Enviar declaración</button>
+        <% } else if (decl.estado === 'NO_INSCRITO') { %>
+          <a class="btn btn-secondary dcl-btn" href="/salidas/<%= salida.id %>">Inscríbete primero</a>
+        <% } else { %>
+          <span class="btn btn-secondary dcl-btn is-disabled">Disponible el <%= dia %></span>
+        <% } %>
+      </section>
+      <div class="stack">
+        <section class="card dcl-evidencia">
+          <h2 class="card-title">Evidencia</h2>
+          <div class="dcl-f dcl-f1e"><div class="field-label">Archivo</div><div class="dcl-v" data-file-name><%= puede ? 'Ninguno' : 'foto-salida.jpg' %></div></div>
+          <% if (puede) { %>
+            <label class="btn btn-secondary dcl-archivo" for="evidencia">Elegir fotografía</label>
+            <input class="sr-only" id="evidencia" name="evidencia" type="file" accept="image/jpeg,image/png,image/webp,image/heic" data-file-input>
+            <p class="dcl-nota">Foto de la salida, del destino o del regreso.<br>JPG o PNG de hasta 8 MB.</p>
+          <% } else { %>
+            <span class="btn btn-secondary dcl-archivo is-disabled">Archivo bloqueado</span>
+            <p class="dcl-nota">Archivo de ejemplo del prototipo.<br>No se suben fotografías reales.</p>
+          <% } %>
+        </section>
+        <%- include('../partials/fecha-prueba', { extraClass: 'dcl-prueba' }) %>
+      </div>
+    </div>
+  </form>
+  <div class="dcl-volver"><a class="link-back" href="/salidas/<%= salida.id %>"><span class="arrow">←</span> Volver al detalle</a></div>
+</div>
+<div class="page-bottom dcl-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

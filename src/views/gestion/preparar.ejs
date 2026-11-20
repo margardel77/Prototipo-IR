@@ -1,0 +1,95 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<%
+  const err = (k) => errores[k] ? `<div class="field-error">${errores[k]}</div>` : '';
+  const cls = (base, k) => errores[k] ? `${base} has-error` : base;
+  const sel = rutas.find((r) => String(r.id) === String(valores.ruta_id)) || rutas[0];
+  const conVueltas = (r) => Boolean(r && r.vuelta_a && r.vuelta_b);
+  const vueltas = (r) => !r ? '—' : (r.vuelta_a && r.vuelta_b ? 'Vuelta A y vuelta B' : r.vuelta_a ? 'Solo vuelta A' : r.vuelta_b ? 'Solo vuelta B' : 'Sin opciones de vuelta');
+  // El tipo solo se pregunta cuando la ruta no admite una salida semanal (sin vueltas A y B) o al modificar una salida no semanal
+  const verTipo = !conVueltas(sel) || (valores.tipo && valores.tipo !== 'SEMANAL');
+  const tipo = valores.tipo || (conVueltas(sel) ? 'SEMANAL' : 'PRUEBA_SOCIAL');
+%>
+<div class="container page prep-page">
+  <div class="page-head">
+    <h1><%= editando ? 'Modificar salida' : 'Preparar una salida' %></h1>
+    <p class="sub"><%= editando ? 'Cambia los datos de la salida. Se avisará a los socios de los cambios.' : 'Selecciona una ruta y revisa los datos antes de publicar.' %></p>
+  </div>
+  <%- include('../partials/flash') %>
+  <div class="grid grid-main-side">
+    <section class="card prep-card">
+      <h2 class="card-title">Datos de la salida</h2>
+      <form method="post" action="/gestion/salidas" novalidate id="form-salida">
+        <% if (editando) { %><input type="hidden" name="editar" value="<%= editando.id %>"><% } %>
+        <div class="prep-fila">
+          <div>
+            <label class="prep-label" for="fecha">Fecha</label>
+            <input class="<%= cls('input input--md', 'fecha') %>" id="fecha" name="fecha" placeholder="DD/MM/AAAA" value="<%= valores.fecha || '' %>" data-mask-date inputmode="numeric">
+            <%- err('fecha') %>
+          </div>
+          <div>
+            <label class="prep-label" for="hora">Hora</label>
+            <input class="<%= cls('input input--md', 'hora') %>" id="hora" name="hora" placeholder="09:00" value="<%= valores.hora || '' %>" inputmode="numeric">
+            <%- err('hora') %>
+          </div>
+        </div>
+        <div class="prep-ruta">
+          <label class="prep-label" for="ruta_id">Ruta</label>
+          <select class="<%= cls('select select--md prep-select', 'ruta_id') %>" id="ruta_id" name="ruta_id" data-ruta-select>
+            <% if (!rutas.length) { %><option value="">No hay rutas registradas</option><% } %>
+            <% rutas.forEach((r) => { %>
+              <option value="<%= r.id %>" data-km="<%= fmt.km(r.kilometros) %>" data-vueltas="<%= vueltas(r) %>" data-semanal="<%= conVueltas(r) ? '1' : '0' %>" <%= sel && sel.id === r.id ? 'selected' : '' %>><%= r.nombre %></option>
+            <% }) %>
+          </select>
+          <%- err('ruta_id') %>
+        </div>
+        <div class="prep-tipo" data-tipo<%= verTipo ? '' : ' hidden' %>>
+          <label class="prep-label" for="tipo">Tipo de salida</label>
+          <select class="<%= cls('select select--md', 'tipo') %>" id="tipo" name="tipo">
+            <% Object.entries(fmt.ETIQ.tipoSalida).forEach(([k, t]) => { %><option value="<%= k %>" <%= tipo === k ? 'selected' : '' %>><%= t %></option><% }) %>
+          </select>
+          <%- err('tipo') %>
+        </div>
+        <a class="btn btn-secondary prep-crear" href="/gestion/rutas/nueva">+ Crear ruta</a>
+        <p class="prep-hint">Selecciona una ruta existente o crea una nueva.</p>
+        <div class="prep-botones">
+          <button class="btn btn-primary prep-publicar" type="submit"><%= editando ? 'Guardar cambios' : 'Publicar salida' %></button>
+          <% if (editando) { %><a class="btn btn-secondary prep-publicar" href="/gestion/salidas">Cancelar</a><% } %>
+        </div>
+      </form>
+    </section>
+    <section class="card prep-lateral">
+      <h2 class="card-title">Ruta seleccionada</h2>
+      <div class="prep-f prep-f1"><div class="field-label">Distancia</div><div class="prep-v" data-ruta-km><%= sel ? fmt.km(sel.kilometros) : '—' %></div></div>
+      <div class="prep-f"><div class="field-label">Opciones de vuelta</div><div class="prep-v" data-ruta-vueltas><%= vueltas(sel) %></div></div>
+      <p class="prep-nota">Publicación de ejemplo: <%= dates.corta(editando ? editando.fecha_publicacion : dates.today()) %>.<br>La salida se comunica con <%= config.antelacionSemanalDias %> días de antelación.</p>
+    </section>
+  </div>
+
+  <% if (programadas.length) { %>
+    <%# CU-003 «Modificar o cancelar salida»: no tiene mockup propio; se muestra debajo de la pantalla diseñada. %>
+    <h2 class="card-title prep-prog-titulo">Salidas programadas</h2>
+    <div class="table-wrap mt-16">
+      <table class="table">
+        <thead><tr><th>Fecha</th><th>Ruta</th><th>Tipo</th><th>Inscritos</th><th style="text-align:right">Acciones</th></tr></thead>
+        <tbody>
+          <% programadas.forEach((s) => { %>
+            <tr>
+              <td><%= dates.media(s.fecha) %> · <%= s.hora %></td>
+              <td><%= s.ruta_nombre %></td>
+              <td><%= fmt.ETIQ.tipoSalida[s.tipo] %></td>
+              <td><%= s.num_inscritos %></td>
+              <td style="text-align:right; white-space:nowrap">
+                <a class="btn btn-plain btn-sm" href="/gestion/salidas?editar=<%= s.id %>">Modificar</a>
+                <form method="post" action="/gestion/salidas/<%= s.id %>/cancelar" style="display:inline" data-confirm="¿Cancelar la salida «<%= s.ruta_nombre %>» del <%= dates.corta(s.fecha) %>? Se avisará a los socios.">
+                  <button class="btn btn-plain btn-sm text-danger" type="submit">Cancelar</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+<div class="page-bottom prep-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

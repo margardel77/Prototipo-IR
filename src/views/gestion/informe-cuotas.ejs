@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Informe de cuotas <%= inf.anio %> · Club Ciclista de Brenes</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script src="/static/js/app.js" defer></script>
+  <style>body{background:#fff} .wrap{max-width:960px;margin:32px auto;padding:0 16px} .table td{border-bottom:1px solid var(--line-2)}</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="row-between">
+      <div class="brand" style="color:var(--dark)"><span class="logo">CB</span><span class="brand-name">Club Ciclista de Brenes</span></div>
+      <button class="btn btn-primary no-print" type="button" data-print>Imprimir o guardar en PDF</button>
+    </div>
+    <h1 style="font-size:30px; margin-top:28px">Informe del estado de las cuotas · <%= inf.anio %></h1>
+    <p class="muted mt-8">Generado el <%= dates.corta(dates.today()) %></p>
+    <table class="table mt-24">
+      <thead><tr><th>N.º</th><th>Nombre y apellidos</th><th>Estado</th><th>Fecha de pago</th><th>Forma de pago</th><th style="text-align:right">Importe</th></tr></thead>
+      <tbody>
+        <% inf.filas.forEach((f) => { %>
+          <tr><td><%= f.numero ?? '—' %></td><td><%= f.nombre %> <%= f.apellidos %></td><td><%= fmt.ETIQ.estadoCuota[f.estado] %></td><td><%= f.fecha_pago ? dates.corta(f.fecha_pago) : '—' %></td><td><%= f.forma_pago ? fmt.ETIQ.formaPago[f.forma_pago] : '—' %></td><td style="text-align:right"><%= fmt.euros(f.importe) %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <div class="grid grid-2 mt-24">
+      <div class="note"><div class="note-title">Cuotas pagadas: <%= inf.numPagadas %></div><div class="note-text">Total recaudado: <%= fmt.euros(inf.recaudado) %></div></div>
+      <div class="note"><div class="note-title">Cuotas pendientes: <%= inf.numPendientes %></div><div class="note-text">Pendiente de cobro: <%= fmt.euros(inf.pendiente) %></div></div>
+    </div>
+  </div>
+</body>
+</html>

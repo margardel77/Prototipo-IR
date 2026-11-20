@@ -1,0 +1,90 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<% const dia = dates.diaSemana(salida.fecha); %>
+<div class="container page detalle-page">
+  <div class="page-head">
+    <h1><%= salida.ruta_nombre %></h1>
+    <p class="sub"><%= dates.larga(salida.fecha) %> · <%= salida.hora %><% if (salida.tipo !== 'SEMANAL') { %> · <%= fmt.ETIQ.tipoSalida[salida.tipo] %><% } %><% if (salida.estado === 'CANCELADA') { %> · <span class="text-danger strong">Cancelada</span><% } %></p>
+  </div>
+  <%- include('../partials/flash') %>
+
+  <div class="grid grid-main-side">
+    <div class="stack">
+      <section class="card det-card">
+        <h2 class="card-title">Recorrido</h2>
+        <div class="det-f det-f1"><div class="field-label">Distancia</div><div class="det-v"><%= fmt.km(salida.kilometros) %></div></div>
+        <div class="det-f det-f2"><div class="field-label">Trayecto</div><div class="det-v"><%= salida.recorrido %></div></div>
+        <% if (salida.puntos_intermedios) { %>
+          <div class="det-f det-f3"><div class="field-label">Puntos intermedios</div><div class="det-v"><%= salida.puntos_intermedios %></div></div>
+        <% } %>
+        <% if (salida.vuelta_a || salida.vuelta_b) { %>
+          <div class="det-f det-f4 det-vueltas">
+            <div><div class="field-label">Vuelta A</div><div class="det-v"><%= salida.vuelta_a || '—' %></div></div>
+            <div><div class="field-label">Vuelta B</div><div class="det-v"><%= salida.vuelta_b || '—' %></div></div>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="card participantes" data-open="true" data-collapsible>
+        <button class="participantes-head" type="button" data-collapse-toggle aria-expanded="true">
+          <h2 class="card-title">Participantes</h2>
+          <span class="pill det-pill"><%= inscritos.length %> <%= inscritos.length === 1 ? 'inscrito' : 'inscritos' %></span>
+          <svg class="chev" viewBox="0 0 14 9" aria-hidden="true"><path d="M1 7.5l6-6 6 6" fill="none" stroke="#20291F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <% if (inscritos.length) { %>
+          <ul class="plist">
+            <% inscritos.forEach((i) => { %>
+              <li><span class="avatar"><%= fmt.inicial(i) %></span><%= i.nombre %> <%= i.apellidos %></li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p class="plist plist-vacio muted">Todavía no hay nadie apuntado. ¡Sé el primero!</p>
+        <% } %>
+      </section>
+      <div><a class="link-back det-volver" href="/salidas"><span class="arrow">←</span> Volver a salidas</a></div>
+    </div>
+
+    <div class="stack">
+      <section class="card det-card det-insc">
+        <h2 class="card-title">Inscripción</h2>
+        <p class="det-indica">Indica si tienes previsto acudir.</p>
+        <% if (salida.estado === 'CANCELADA') { %>
+          <span class="btn btn-secondary btn-block is-disabled det-btn1">Salida cancelada</span>
+        <% } else if (decl.inscrito) { %>
+          <span class="btn btn-secondary btn-block is-disabled det-btn1">Apuntado</span>
+        <% } else if (!plazo.abierto) { %>
+          <span class="btn btn-secondary btn-block is-disabled det-btn1">Plazo cerrado</span>
+          <p class="muted small det-plazo">En las salidas especiales puedes apuntarte del <%= dates.corta(plazo.apertura) %> al <%= dates.corta(dates.addDays(plazo.cierre, -1)) %>.</p>
+        <% } else { %>
+          <form method="post" action="/salidas/<%= salida.id %>/apuntarme" class="det-btn1">
+            <button class="btn btn-primary btn-block" type="submit">Apuntarme</button>
+          </form>
+        <% } %>
+        <p class="det-publicada">Publicada el <%= dates.corta(salida.fecha_publicacion) %></p>
+        <hr class="det-divider">
+
+        <% if (decl.estado === 'PRUEBA_SOCIAL') { %>
+          <h3 class="det-h3">Prueba social</h3>
+          <p class="det-txt">La clasificación y los puntos se calculan con los tiempos que registra la directiva tras la prueba.</p>
+        <% } else if (decl.estado === 'DECLARADA' || decl.estado === 'CONFIRMADA_DIRECTIVA') { %>
+          <h3 class="det-h3"><%= decl.estado === 'DECLARADA' ? 'Tu declaración está enviada' : 'Asistencia confirmada por la directiva' %></h3>
+          <p class="det-txt">Consulta el estado de la validación y los puntos asignados.</p>
+          <a class="btn btn-secondary btn-block det-btn2" href="/salidas/<%= salida.id %>/participacion">Ver mi participación</a>
+        <% } else if (decl.estado === 'DISPONIBLE') { %>
+          <h3 class="det-h3">Después de la salida</h3>
+          <p class="det-txt">Declara tu asistencia y aporta una evidencia.<br>La directiva revisará tu participación.</p>
+          <a class="btn btn-primary btn-block det-btn2" href="/salidas/<%= salida.id %>/declarar">Declarar asistencia</a>
+        <% } else if (decl.estado === 'CANCELADA') { %>
+          <h3 class="det-h3">Salida cancelada</h3>
+          <p class="det-txt">Esta salida no se realizará. Consulta el calendario para elegir otra.</p>
+        <% } else { %>
+          <h3 class="det-h3">Desde el <%= dia %> de la salida</h3>
+          <p class="det-txt">Puedes declararla ese <%= dia %> o después.<br>Una sola declaración por socio y ruta.</p>
+          <span class="btn btn-secondary btn-block is-disabled det-btn2"><%= decl.estado === 'NO_INSCRITO' ? 'Inscríbete primero' : `Disponible el ${dia}` %></span>
+        <% } %>
+      </section>
+      <%- include('../partials/fecha-prueba', { extraClass: 'det-prueba' }) %>
+    </div>
+  </div>
+</div>
+<div class="page-bottom det-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

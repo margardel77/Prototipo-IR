@@ -1,0 +1,43 @@
+<% const inscritosIds = new Set(filas.map((f) => f.socio_id)); %>
+<div class="modal" id="modal-anadir" role="dialog" aria-modal="true" aria-labelledby="modal-anadir-t">
+  <div class="modal-box ma-box">
+    <div class="modal-head">
+      <div>
+        <h2 id="modal-anadir-t">Añadir socio a la ruta</h2>
+        <p class="modal-sub">Busca a un socio del club por su nombre o apellidos.</p>
+      </div>
+      <button class="btn btn-secondary ma-cerrar" type="button" data-modal-close>Cerrar</button>
+    </div>
+    <label class="ma-label" for="buscar-socio">Nombre o apellidos</label>
+    <div class="search-box">
+      <input id="buscar-socio" type="search" placeholder="Nombre o apellidos" autocomplete="off" data-filter-input="#lista-socios-modal">
+      <button class="btn" type="button" data-filter-clear="#buscar-socio">Borrar</button>
+    </div>
+    <h3 class="ma-h3">Socios del club</h3>
+    <div class="mlist" id="lista-socios-modal">
+      <% const orden = [...candidatos].sort((a, b) => Number(inscritosIds.has(a.id)) - Number(inscritosIds.has(b.id))); %>
+      <% orden.forEach((c) => { const ya = inscritosIds.has(c.id); %>
+        <div class="mitem" data-filter-item="<%= (c.nombre + ' ' + c.apellidos).toLowerCase() %>">
+          <div>
+            <div class="n"><%= c.nombre %> <%= c.apellidos %></div>
+            <div class="s"><%= ya ? salidaSel.ruta_nombre : 'Socio del club · Alta manual disponible' %></div>
+          </div>
+          <% if (ya) { %>
+            <span class="ya">Ya inscrito</span>
+          <% } else { %>
+            <form method="post" action="/gestion/participacion/<%= salidaSel.id %>/anadir">
+              <input type="hidden" name="socio_id" value="<%= c.id %>">
+              <input type="hidden" name="volver" value="<%= volverA %>">
+              <button class="btn btn-primary" type="submit">Añadir a la ruta</button>
+            </form>
+          <% } %>
+        </div>
+      <% }) %>
+      <p class="muted ma-vacio" data-filter-empty hidden>No hay socios con ese nombre.</p>
+    </div>
+    <div class="modal-foot ma-pie">
+      <span>Prototipo · Socios de ejemplo</span>
+      <button class="btn btn-secondary ma-cancelar" type="button" data-modal-close>Cancelar</button>
+    </div>
+  </div>
+</div>

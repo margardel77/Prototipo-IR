@@ -1,0 +1,6 @@
+<% if (flash) { %>
+  <div class="flash flash--<%= flash.tipo === 'error' ? 'error' : 'ok' %>" role="<%= flash.tipo === 'error' ? 'alert' : 'status' %>"><%= flash.texto %></div>
+<% } %>
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="flash flash--error" role="alert"><%= error %></div>
+<% } %>

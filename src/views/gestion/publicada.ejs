@@ -1,0 +1,24 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<div class="container page">
+  <div class="page-head">
+    <h1><%= flash && flash.tipo === 'ok' ? 'Salida modificada' : 'Salida publicada' %></h1>
+    <p class="sub">La salida ya está disponible en el calendario de ejemplo.</p>
+  </div>
+  <section class="card pub-card">
+    <h2 class="pub-titulo"><%= salida.ruta_nombre %></h2>
+    <p class="pub-fecha"><%= dates.larga(salida.fecha) %> · <%= salida.hora %></p>
+    <div class="pub-datos">
+      <div><div class="field-label">Distancia</div><div class="pub-v"><%= fmt.km(salida.kilometros) %></div></div>
+      <div><div class="field-label">Fecha de publicación</div><div class="pub-v"><%= dates.corta(salida.fecha_publicacion) %></div></div>
+    </div>
+    <p class="pub-nota">
+      <%= salida.tipo === 'SEMANAL' ? `La publicación respeta los ${config.antelacionSemanalDias} días de antelación para salidas semanales.` : salida.tipo === 'ESPECIAL' ? `Los socios podrán apuntarse del ${dates.corta(dates.addDays(salida.fecha, -config.consultaEspecial.apertura))} al ${dates.corta(dates.addDays(salida.fecha, -config.consultaEspecial.cierre - 1))}.` : 'Los socios ya pueden apuntarse a la prueba social.' %>
+    </p>
+    <div class="pub-botones">
+      <a class="btn btn-primary pub-b1" href="/salidas">Ver calendario</a>
+      <a class="btn btn-secondary pub-b2" href="/gestion/salidas">Volver a preparar salida</a>
+    </div>
+  </section>
+</div>
+<div class="page-bottom pub-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

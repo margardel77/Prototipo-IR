@@ -1,0 +1,74 @@
+<%#
+  Formulario del pago simulado con la tarjeta de prueba (mockups 25 y 42).
+  Parámetros: eyebrow, h1, accion, resumenTitulo, resumenEjercicio, notaRecorrido, volverUrl, volverTexto,
+              rechazadoUrl, anio, importe, ocultos (objeto de campos ocultos)
+%>
+<% const err = (k) => errores[k] ? `<div class="field-error">${errores[k]}</div>` : ''; const cls = (k) => errores[k] ? 'input has-error' : 'input'; %>
+<div class="container page pago-page">
+  <div class="page-head page-head--row">
+    <div>
+      <div class="eyebrow"><%= eyebrow %></div>
+      <h1><%= h1 %></h1>
+      <p class="sub">Revisa la cuota anual y recorre el pago de demostración.</p>
+    </div>
+    <span class="pill pago-sim">Simulación · Sin cobros reales</span>
+  </div>
+  <%- include('flash') %>
+  <div class="grid grid-main-side">
+    <div>
+      <section class="card pago-card">
+        <h2 class="card-title">Datos del pago</h2>
+        <div class="pago-tarjeta">
+          <span>Tarjeta de prueba</span>
+          <span class="small muted">Datos ficticios</span>
+        </div>
+        <form method="post" action="<%= accion %>" novalidate data-card-form>
+          <% Object.entries(typeof ocultos !== 'undefined' ? ocultos : {}).forEach(([k, v]) => { %><input type="hidden" name="<%= k %>" value="<%= v %>"><% }) %>
+          <div class="form-row">
+            <label class="form-label" for="titular">Titular de la tarjeta</label>
+            <input class="<%= cls('titular') %>" id="titular" name="titular" placeholder="SOCIO DE EJEMPLO" value="<%= valores.titular || '' %>" autocomplete="off" style="text-transform:uppercase">
+            <%- err('titular') %>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="numero">Número de tarjeta</label>
+            <input class="<%= cls('numero') %>" id="numero" name="numero" inputmode="numeric" placeholder="••••  ••••  ••••  4242" autocomplete="off" data-mask-card>
+            <%- err('numero') %>
+          </div>
+          <div class="form-grid">
+            <div class="form-row">
+              <label class="form-label" for="caducidad">Fecha de caducidad</label>
+              <input class="<%= cls('caducidad') %>" id="caducidad" name="caducidad" placeholder="MM/AA" inputmode="numeric" autocomplete="off" value="<%= valores.caducidad || '' %>" data-mask-exp>
+              <%- err('caducidad') %>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="cvc">Código de seguridad</label>
+              <input class="<%= cls('cvc') %>" id="cvc" name="cvc" placeholder="•••" inputmode="numeric" maxlength="4" autocomplete="off">
+              <%- err('cvc') %>
+            </div>
+          </div>
+          <p class="pago-aviso">Campos de demostración. No introduzcas datos bancarios reales.</p>
+          <button class="btn btn-primary btn-block pago-submit" type="submit">Pagar <%= fmt.euros(importe) %> · Simulación</button>
+        </form>
+        <p class="pago-rechazo"><a class="strong" href="<%= rechazadoUrl %>">Ver ejemplo de pago rechazado</a></p>
+      </section>
+      <a class="link-back pago-volver" href="<%= volverUrl %>"><span class="arrow">←</span> <%= volverTexto %></a>
+    </div>
+    <div class="stack">
+      <section class="card pago-resumen">
+        <h2 class="card-title"><%= resumenTitulo %></h2>
+        <div class="field-label">Concepto</div>
+        <div class="pago-concepto">Cuota anual del club</div>
+        <div class="muted pago-ejercicio">Ejercicio <%= anio %> · <%= resumenEjercicio %></div>
+        <hr class="divider">
+        <div class="pago-total"><span>Total a pagar</span><span class="v"><%= fmt.euros(importe) %></span></div>
+        <p class="muted pago-unico">Pago único de la cuota anual.</p>
+        <p class="muted pago-ejemplo">Importe de ejemplo utilizado<br>en el prototipo del club.</p>
+      </section>
+      <section class="card card--soft pago-recorrido">
+        <h2>Solo para mostrar el recorrido</h2>
+        <p class="muted">No se conecta a un banco ni se realiza ningún cargo.</p>
+        <p class="muted"><%- notaRecorrido %></p>
+      </section>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+<%- include('../partials/top', { variant: 'acceso', etiqueta: 'Registro · Pago' }) %>
+<%- include('../partials/pago-ko', {
+  eyebrow: 'Paso 2 de 3 · Pago de la cuota',
+  btn1: ['Volver al pago', '/registro/pago'], btn2: ['Volver a mis datos', '/registro'],
+}) %>
+<div class="page-bottom pago-ko-bottom is-auth"></div>
+<%- include('../partials/bottom', { variant: 'acceso', pieIzq: 'Club Ciclista de Brenes · Registro', pieDer: config.labels.pagoFooterRight }) %>

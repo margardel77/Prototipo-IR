@@ -1,0 +1,17 @@
+<% const va = usuario ? 'socio' : 'acceso'; %>
+<%- include('../partials/top', { variant: va, etiqueta: 'Club Ciclista de Brenes' }) %>
+<div class="container page">
+  <div class="center-card">
+    <section class="card" style="padding-bottom:48px">
+      <span class="tag tag--soft">Aviso</span>
+      <h1><%= titulo %></h1>
+      <p class="lead"><%= mensaje %></p>
+      <div class="row mt-40">
+        <a class="btn btn-primary w-264" href="javascript:history.back()">Volver atrás</a>
+        <a class="btn btn-secondary w-264" href="<%= usuario ? '/salidas' : '/' %>">Ir a las salidas</a>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="page-bottom"></div>
+<%- include('../partials/bottom', { variant: va }) %>

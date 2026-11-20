@@ -1,0 +1,51 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<div class="container page carrito-page">
+  <div class="page-head">
+    <h1>Carrito</h1>
+    <p class="sub">Revisa las prendas, las tallas y las cantidades antes de confirmar el pedido.</p>
+  </div>
+  <%- include('../partials/flash') %>
+  <div class="table-wrap">
+    <table class="table carrito-tabla">
+      <thead><tr><th class="c1">Prenda</th><th class="c2">Talla</th><th>Cantidad</th></tr></thead>
+      <tbody>
+        <% if (!lineas.length) { %>
+          <tr><td colspan="3" class="muted">Tu carrito está vacío. <a class="cell-link" href="/equipacion">Elige una prenda en Equipaciones</a>.</td></tr>
+        <% } %>
+        <% lineas.forEach((l) => { %>
+          <tr>
+            <td><%= l.prenda %></td>
+            <td><%= l.talla %></td>
+            <td>
+              <form class="carrito-cant" method="post" action="/equipacion/carrito/<%= l.id %>">
+                <select class="inline-select" name="cantidad" aria-label="Cantidad de <%= l.prenda %> talla <%= l.talla %>" data-autosubmit>
+                  <% for (let n = 1; n <= max; n += 1) { %><option <%= n === l.cantidad ? 'selected' : '' %>><%= n %></option><% } %>
+                </select>
+              </form>
+              <form class="carrito-quitar" method="post" action="/equipacion/carrito/<%= l.id %>">
+                <input type="hidden" name="cantidad" value="0">
+                <button class="row-remove" type="submit" aria-label="Quitar <%= l.prenda %> talla <%= l.talla %> del carrito" title="Quitar del carrito">×</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid carrito-grid stretch">
+    <section class="card carrito-card">
+      <h2 class="card-title">Resumen del pedido</h2>
+      <div class="cf"><div class="field-label">Fecha</div><div class="cf-v"><%= dates.corta(dates.today()) %></div></div>
+      <div class="cf"><div class="field-label">Importe total</div><div class="cf-v"><%= fmt.euros(calculo.importe) %></div></div>
+    </section>
+    <section class="card carrito-card">
+      <h2 class="card-title">Descuento</h2>
+      <div class="cf"><div class="field-label">Descuento aplicado</div><div class="cf-v"><%= fmt.euros(calculo.descuento) %></div></div>
+      <form method="post" action="/equipacion/pedido">
+        <button class="btn btn-primary carrito-confirmar" type="submit"<%= lineas.length && campania ? '' : ' disabled' %>>Confirmar pedido</button>
+      </form>
+    </section>
+  </div>
+</div>
+<div class="page-bottom carrito-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

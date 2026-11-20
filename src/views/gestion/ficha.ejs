@@ -1,0 +1,104 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<%
+  const err = (k) => errores[k] ? `<div class="field-error">${errores[k]}</div>` : '';
+  const cls = (k) => errores[k] ? 'input input--md has-error' : 'input input--md';
+  const val = (k) => valores[k] == null ? '' : valores[k];
+  const vigente = historial.find((h) => !h.fecha_fin);
+%>
+<div class="container page">
+  <div class="page-head">
+    <h1>Ficha del socio</h1>
+    <p class="sub">Gestiona los datos del socio y consulta su historial de altas.</p>
+  </div>
+  <%- include('../partials/flash') %>
+  <div class="grid grid-ficha stretch">
+    <% if (!editar) { %>
+      <section class="card ficha-card">
+        <h2 class="card-title">Datos del socio</h2>
+        <div class="fi-f fi-f1"><div class="field-label">Nombre y apellidos</div><div class="fi-v"><%= socio.nombre %> <%= socio.apellidos %></div></div>
+        <div class="fi-f"><div class="field-label">Fecha de nacimiento</div><div class="fi-v"><%= dates.corta(socio.fecha_nacimiento) %></div></div>
+        <div class="fi-f"><div class="field-label">Dirección</div><div class="fi-v"><%= socio.direccion %></div></div>
+        <div class="fi-f"><div class="field-label">Teléfono</div><div class="fi-v"><%= socio.telefono %></div></div>
+        <div class="fi-f"><div class="field-label">Correo electrónico</div><div class="fi-v"><%= socio.email %></div></div>
+        <div class="fi-f"><div class="field-label">Estado</div><div class="fi-v" title="<%= cargo ? `${fmt.ETIQ.cargo[cargo.tipo]} de la junta hasta el ${dates.corta(cargo.fecha_fin)}` : '' %>"><%= fmt.ETIQ.estadoSocio[socio.estado] %></div></div>
+      </section>
+    <% } else { %>
+      <section class="card">
+        <h2 class="card-title">Editar datos</h2>
+        <form method="post" action="/gestion/socios/<%= socio.id %>" novalidate>
+          <div class="form-grid" style="margin-top:22px">
+            <div class="form-row"><label class="form-label form-label--sm" for="nombre">Nombre</label><input class="<%= cls('nombre') %>" id="nombre" name="nombre" value="<%= val('nombre') %>"><%- err('nombre') %></div>
+            <div class="form-row"><label class="form-label form-label--sm" for="apellidos">Apellidos</label><input class="<%= cls('apellidos') %>" id="apellidos" name="apellidos" value="<%= val('apellidos') %>"><%- err('apellidos') %></div>
+            <div class="form-row"><label class="form-label form-label--sm" for="fecha_nacimiento">Fecha de nacimiento</label><input class="<%= cls('fecha_nacimiento') %>" id="fecha_nacimiento" name="fecha_nacimiento" placeholder="DD/MM/AAAA" value="<%= val('fecha_nacimiento') %>" data-mask-date><%- err('fecha_nacimiento') %></div>
+            <div class="form-row"><label class="form-label form-label--sm" for="telefono">Teléfono</label><input class="<%= cls('telefono') %>" id="telefono" name="telefono" value="<%= val('telefono') %>"><%- err('telefono') %></div>
+          </div>
+          <div class="form-row" style="margin-top:22px"><label class="form-label form-label--sm" for="direccion">Dirección</label><input class="<%= cls('direccion') %>" id="direccion" name="direccion" value="<%= val('direccion') %>"><%- err('direccion') %></div>
+          <div class="form-row" style="margin-top:22px"><label class="form-label form-label--sm" for="email">Correo electrónico</label><input class="<%= cls('email') %>" id="email" name="email" type="email" value="<%= val('email') %>"><%- err('email') %></div>
+          <% if (socio.estado === 'ACTIVO' && permisos.includes('cuotas') && permisos.includes('salidas')) { %>
+            <div class="form-row" style="margin-top:22px">
+              <label class="form-label form-label--sm" for="cargo">Cargo en la junta directiva</label>
+              <select class="select select--md" id="cargo" name="cargo">
+                <option value="">Sin cargo</option>
+                <% Object.entries(fmt.ETIQ.cargo).forEach(([k, t]) => { %><option value="<%= k %>" <%= (valores.cargo !== undefined ? valores.cargo === k : cargo && cargo.tipo === k) ? 'selected' : '' %>><%= t %></option><% }) %>
+              </select>
+              <p class="muted small mt-8">Cada mandato dura como máximo <%= config.mandatoMaxAnios %> años. Presidencia, secretaría y tesorería deben estar siempre cubiertas.</p>
+            </div>
+          <% } %>
+          <div class="row" style="margin-top:30px; gap:16px">
+            <button class="btn btn-primary w-220" type="submit">Guardar cambios</button>
+            <a class="btn btn-secondary w-220" href="/gestion/socios/<%= socio.id %>">Cancelar</a>
+          </div>
+        </form>
+      </section>
+    <% } %>
+
+    <section class="card ficha-card">
+      <h2 class="card-title">Historial de altas</h2>
+      <% if (socio.estado === 'PENDIENTE') { %>
+        <div class="note note--lg" style="margin-top:34px">
+          <div class="note-title">Solicitud de alta pendiente de revisión</div>
+          <div class="note-text">Recibida el <%= dates.corta(socio.solicitud_fecha) %>. <%= socio.solicitud_pago ? `Cuota pagada en la simulación (${socio.solicitud_pago}).` : 'Sin pago registrado.' %></div>
+        </div>
+        <p class="muted text-15" style="margin-top:22px">Al aprobar el alta se asigna el siguiente número de socio libre y se registra la cuota del año.</p>
+        <div class="row" style="margin-top:28px; gap:16px">
+          <form method="post" action="/gestion/socios/<%= socio.id %>/aprobar"><button class="btn btn-primary w-236" type="submit">Aprobar alta</button></form>
+          <form method="post" action="/gestion/socios/<%= socio.id %>/rechazar" data-confirm="¿Rechazar esta solicitud de alta?"><button class="btn btn-secondary w-236" type="submit">Rechazar solicitud</button></form>
+        </div>
+      <% } else { %>
+        <div class="table-wrap fi-tabla">
+          <table class="table">
+            <thead><tr><th class="c1">N.º de socio</th><th class="c2">Fecha de alta</th><th>Fecha de baja</th></tr></thead>
+            <tbody>
+              <% historial.forEach((h) => { %>
+                <tr><td><%= h.numero %></td><td><%= dates.corta(h.fecha_asignacion) %></td><td><%= h.fecha_fin ? dates.corta(h.fecha_fin) : '—' %></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <div class="fi-alta">
+          <% if (vigente) { %>
+            <a class="btn btn-primary fi-ver" href="/gestion/socios/<%= socio.id %>/alta-vigente">Ver alta vigente</a>
+          <% } else { %>
+            <p class="muted text-15">El socio no tiene ninguna alta vigente. Si vuelve al club, se registra otra alta con un número nuevo.</p>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
+  </div>
+
+  <div class="row-between fi-pie">
+    <a class="btn btn-secondary fi-volver" href="/gestion/socios"><span class="arrow">←</span> Volver a socios</a>
+    <% if (!editar) { %>
+      <div class="row" style="gap:12px">
+        <% if (socio.estado !== 'PENDIENTE') { %><a class="btn btn-plain" href="/gestion/socios/<%= socio.id %>?editar=1">Editar datos</a><% } %>
+        <% if (socio.estado === 'ACTIVO') { %>
+          <form method="post" action="/gestion/socios/<%= socio.id %>/baja" data-confirm="¿Dar de baja a <%= socio.nombre %> <%= socio.apellidos %>? Su número de socio no se volverá a asignar."><button class="btn btn-plain" type="submit">Dar de baja</button></form>
+        <% } else if (socio.estado === 'BAJA' && historial.length) { %>
+          <form method="post" action="/gestion/socios/<%= socio.id %>/reingreso" data-confirm="¿Registrar el reingreso? Recibirá el siguiente número libre."><button class="btn btn-plain" type="submit">Registrar reingreso</button></form>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+</div>
+<div class="page-bottom fi-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

@@ -1,0 +1,23 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<div class="container page">
+  <div class="page-head">
+    <h1>Alta vigente</h1>
+    <p class="sub">Datos del alta actual y número de socio.</p>
+  </div>
+  <div class="grid grid-comprobante">
+    <section class="card alta-card">
+      <h2 class="alta-titulo"><%= socio.nombre %> <%= socio.apellidos %></h2>
+      <% if (vigente) { %>
+        <div class="alta-f alta-f1"><div class="field-label">Número de socio</div><div class="alta-v"><%= vigente.numero %></div></div>
+        <div class="alta-f"><div class="field-label">Fecha de alta</div><div class="alta-v"><%= dates.corta(vigente.fecha_asignacion) %></div></div>
+        <div class="alta-f"><div class="field-label">Estado</div><div class="alta-v"><%= fmt.ETIQ.estadoSocio[socio.estado] %> · Sin fecha de baja</div></div>
+      <% } else { %>
+        <p class="alta-f alta-f1 muted">Este socio no tiene ninguna alta vigente.</p>
+      <% } %>
+      <a class="btn btn-primary alta-volver" href="/gestion/socios/<%= socio.id %>">Volver a la ficha del socio</a>
+    </section>
+    <div></div>
+  </div>
+</div>
+<div class="page-bottom alta-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

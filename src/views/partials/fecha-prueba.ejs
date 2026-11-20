@@ -1,0 +1,33 @@
+<% if (config.demoTools && salida.tipo !== 'PRUEBA_SOCIAL') {
+     const f = fechaRef.fecha;
+     const modo = f < salida.fecha ? 'antes' : (f === salida.fecha ? 'domingo' : 'despues');
+     const dia = dates.diaSemana(salida.fecha); %>
+  <div class="fecha-prueba <%= typeof extraClass !== 'undefined' ? extraClass : '' %>">
+    <div>
+      <div class="t1"><%= dates.corta(f) %> · <%= fechaRef.simulada ? 'Fecha de prueba' : 'Fecha actual' %></div>
+      <div class="t2">Solo para probar el plazo</div>
+    </div>
+    <button class="btn btn-white" type="button" data-modal-open="modal-fechas">Probar fechas</button>
+  </div>
+
+  <div class="modal" id="modal-fechas" role="dialog" aria-modal="true" aria-labelledby="modal-fechas-t">
+    <div class="modal-box modal-box--sm mf-box">
+      <h2 id="modal-fechas-t">Probar disponibilidad</h2>
+      <p class="mf-sub">La fecha se simula para la ruta seleccionada.<br>No cambia las declaraciones que ya has enviado.</p>
+      <p class="mf-fecha"><%= dates.corta(f) %> · <%= fechaRef.simulada ? 'Fecha de prueba' : 'Fecha actual' %></p>
+      <div class="seg mf-seg">
+        <% [['antes', `Antes del ${dia}`], ['domingo', `El mismo ${dia}`], ['despues', 'Días posteriores']].forEach(([m, t]) => { %>
+          <form method="post" action="/salidas/<%= salida.id %>/fecha-prueba">
+            <input type="hidden" name="modo" value="<%= m %>">
+            <input type="hidden" name="volver" value="<%= ruta %>">
+            <button class="btn <%= modo === m ? 'btn-primary' : 'btn-secondary' %>" type="submit"><%= t %></button>
+          </form>
+        <% }) %>
+      </div>
+      <p class="mf-hint">Desde el <%= dia %>, el plazo sigue abierto hasta que envías tu única declaración.</p>
+      <div class="mf-pie">
+        <button class="btn btn-secondary mf-cerrar" type="button" data-modal-close>Cerrar</button>
+      </div>
+    </div>
+  </div>
+<% } %>

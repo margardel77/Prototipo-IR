@@ -1,0 +1,79 @@
+<%- include('../partials/top', { variant: 'acceso', etiqueta: 'Registro' }) %>
+<%
+  const err = (k) => errores[k] ? `<div class="field-error">${errores[k]}</div>` : '';
+  const cls = (k) => errores[k] ? 'input rg-input has-error' : 'input rg-input';
+  const val = (k) => valores[k] || '';
+%>
+<div class="container">
+  <div class="rg">
+    <div class="rg-izq">
+      <a class="rg-volver" href="/acceso"><span class="arrow">←</span> Volver al inicio de sesión</a>
+      <aside class="rg-panel">
+        <div class="lg-eyebrow">Club Ciclista de Brenes</div>
+        <h2>Un nuevo<br>camino<br>empieza aquí.</h2>
+        <p class="rg-lead">Da el primer paso para<br>formar parte del club.</p>
+        <hr>
+        <h3>Cuenta y condición de socio</h3>
+        <p class="rg-txt">Crear una cuenta no supone el alta<br>automática como socio. La directiva revisará<br>tu solicitud.</p>
+        <p class="rg-txt-sm">Tus datos se utilizarán para tramitar tu registro y<br>gestionar tu relación con el club.</p>
+        <p class="lg-lugar">Brenes · Sevilla</p>
+      </aside>
+    </div>
+    <div class="rg-form">
+      <div class="lg-eyebrow2">Paso 1 de 3 · Tus datos</div>
+      <h1>Crea tu cuenta</h1>
+      <p class="rg-sub">Introduce tus datos. Todos los campos son obligatorios.</p>
+      <%- include('../partials/flash') %>
+      <form method="post" action="/registro" novalidate>
+        <div class="rg-grid">
+          <div class="rg-campo">
+            <label class="lg-label" for="nombre">Nombre *</label>
+            <input class="<%= cls('nombre') %>" id="nombre" name="nombre" placeholder="Tu nombre" autocomplete="given-name" value="<%= val('nombre') %>" required>
+            <%- err('nombre') %>
+          </div>
+          <div class="rg-campo">
+            <label class="lg-label" for="apellidos">Apellidos *</label>
+            <input class="<%= cls('apellidos') %>" id="apellidos" name="apellidos" placeholder="Tus apellidos" autocomplete="family-name" value="<%= val('apellidos') %>" required>
+            <%- err('apellidos') %>
+          </div>
+          <div class="rg-campo">
+            <label class="lg-label" for="fecha_nacimiento">Fecha de nacimiento *</label>
+            <input class="<%= cls('fecha_nacimiento') %>" id="fecha_nacimiento" name="fecha_nacimiento" placeholder="DD/MM/AAAA" inputmode="numeric" autocomplete="bday" value="<%= val('fecha_nacimiento') %>" data-mask-date required>
+            <%- err('fecha_nacimiento') %>
+          </div>
+          <div class="rg-campo">
+            <label class="lg-label" for="telefono">Teléfono *</label>
+            <input class="<%= cls('telefono') %>" id="telefono" name="telefono" type="tel" placeholder="Tu teléfono de contacto" autocomplete="tel" value="<%= val('telefono') %>" required>
+            <%- err('telefono') %>
+          </div>
+          <div class="rg-campo rg-full">
+            <label class="lg-label" for="direccion">Dirección *</label>
+            <input class="<%= cls('direccion') %>" id="direccion" name="direccion" placeholder="Calle, número, localidad y código postal" autocomplete="street-address" value="<%= val('direccion') %>" required>
+            <%- err('direccion') %>
+          </div>
+          <div class="rg-campo rg-full">
+            <label class="lg-label" for="email">Email *</label>
+            <input class="<%= cls('email') %>" id="email" name="email" type="email" placeholder="Tu correo electrónico" autocomplete="email" value="<%= val('email') %>" required>
+            <%- err('email') %>
+          </div>
+          <div class="rg-campo">
+            <label class="lg-label" for="password">Contraseña *</label>
+            <input class="<%= cls('password') %>" id="password" name="password" type="password" placeholder="Crea una contraseña" autocomplete="new-password" minlength="8" required>
+            <%- err('password') %>
+          </div>
+          <div class="rg-campo">
+            <label class="lg-label" for="password2">Confirmar contraseña *</label>
+            <input class="<%= cls('password2') %>" id="password2" name="password2" type="password" placeholder="Repite la contraseña" autocomplete="new-password" required>
+            <%- err('password2') %>
+          </div>
+        </div>
+        <p class="rg-ayuda">Usa al menos 8 caracteres para tu contraseña.</p>
+        <div class="rg-nota">Después continuarás al pago simulado de la cuota anual.<br>El alta como socio sigue sujeta a revisión por la directiva.</div>
+        <button class="btn btn-primary btn-block rg-continuar" type="submit">Continuar al pago</button>
+      </form>
+      <a class="btn btn-block rg-tengo" href="/acceso">Ya tengo cuenta · Iniciar sesión</a>
+    </div>
+  </div>
+</div>
+<div class="page-bottom rg-bottom"></div>
+<%- include('../partials/bottom', { variant: 'acceso', pieIzq: 'Club Ciclista de Brenes · Registro' }) %>

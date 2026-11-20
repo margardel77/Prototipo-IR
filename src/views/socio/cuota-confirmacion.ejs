@@ -1,0 +1,11 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<%- include('../partials/pago-ok', {
+  eyebrow: 'Renovación · Confirmación',
+  lead: `Tu cuota de ${fmt.euros(importe)} se ha abonado en esta demostración.`,
+  txt: `Tu cuota del ejercicio ${anio} queda abonada.<br>Puedes seguir usando el área de socios con normalidad.`,
+  descargarUrl: `/cuota/${anio}/comprobante.pdf`,
+  btn1: ['Volver a Mi cuota', `/cuota?anio=${anio}`], btn2: ['Ir a las salidas', '/salidas'],
+  nota: 'Demostración: no se ha cobrado dinero.',
+}) %>
+<div class="page-bottom pago-ok-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

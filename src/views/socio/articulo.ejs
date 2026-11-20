@@ -1,0 +1,28 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<% const tallaDefecto = articulo.tallas.includes('S') ? 'S' : articulo.tallas[0]; %>
+<div class="container page articulo-page">
+  <a class="articulo-volver" href="/equipacion"><span class="arrow">‹</span> Volver a equipaciones</a>
+  <div class="articulo">
+    <div class="articulo-info">
+      <h1><%= articulo.nombre %></h1>
+      <div class="precio"><%= fmt.euros(articulo.precio_base) %></div>
+      <p class="desc"><%= articulo.descripcion %></p>
+      <%- include('../partials/flash') %>
+      <form method="post" action="/equipacion/carrito">
+        <input type="hidden" name="articulo_id" value="<%= articulo.id %>">
+        <label class="articulo-label" for="talla">Talla</label>
+        <select class="articulo-select" id="talla" name="talla">
+          <% articulo.tallas.forEach((t) => { %><option <%= t === tallaDefecto ? 'selected' : '' %>><%= t %></option><% }) %>
+        </select>
+        <label class="articulo-label" for="cantidad">Cantidad</label>
+        <select class="articulo-select" id="cantidad" name="cantidad">
+          <% for (let n = 1; n <= max; n += 1) { %><option <%= n === 1 ? 'selected' : '' %>><%= n %></option><% } %>
+        </select>
+        <button class="btn btn-lime2 articulo-anadir" type="submit">Añadir al carrito</button>
+      </form>
+    </div>
+    <%- include('../partials/foto-producto', { grande: true }) %>
+  </div>
+</div>
+<div class="page-bottom articulo-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

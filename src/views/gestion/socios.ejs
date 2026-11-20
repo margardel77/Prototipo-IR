@@ -1,0 +1,37 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<div class="container page socios-page">
+  <div class="page-head">
+    <h1>Socios</h1>
+    <p class="sub">Consulta la información básica de cada socio y abre su ficha para gestionarla.</p>
+  </div>
+  <%- include('../partials/flash') %>
+  <div class="socios-barra">
+    <form method="get" action="/gestion/socios" role="search" class="socios-buscar">
+      <label class="sr-only" for="q">Buscar socios</label>
+      <input class="input input--md" id="q" name="q" type="search" placeholder="Buscar por nombre o n.º de socio" value="<%= q %>" data-autosearch>
+    </form>
+    <div class="socios-cuenta"><%= total %> <%= total === 1 ? 'socio' : 'socios' %>&nbsp; · &nbsp;<%= activos %> <%= activos === 1 ? 'activo' : 'activos' %><% if (pendientes) { %>&nbsp; · &nbsp;<span class="strong" style="color:var(--green)"><%= pendientes %> <%= pendientes === 1 ? 'solicitud pendiente' : 'solicitudes pendientes' %></span><% } %></div>
+    <a class="btn btn-primary socios-nuevo" href="/gestion/socios/nuevo"><span class="plus">+</span> Nuevo socio</a>
+  </div>
+  <div class="tcard table-wrap socios-tabla">
+    <table>
+      <thead><tr><th class="c1">N.º socio</th><th class="c2">Socio</th><th class="c3">Edad</th><th class="c4">Teléfono</th><th class="c5">Correo electrónico</th><th class="c6">Estado</th><th></th></tr></thead>
+      <tbody>
+        <% if (!lista.length) { %><tr><td colspan="7" class="muted">No hay socios que coincidan con la búsqueda.</td></tr><% } %>
+        <% lista.forEach((s) => { %>
+          <tr>
+            <td><%= s.numero ?? '—' %></td>
+            <td><a class="cell-link" href="/gestion/socios/<%= s.id %>"><%= s.nombre %> <%= s.apellidos %></a></td>
+            <td><%= dates.edad(s.fecha_nacimiento) %> años</td>
+            <td><%= s.telefono %></td>
+            <td><%= s.email %></td>
+            <td><span class="estado-socio<%= s.estado === 'ACTIVO' ? '' : s.estado === 'BAJA' ? ' is-baja' : ' is-solicitud' %>"><%= s.estado === 'PENDIENTE' ? 'Solicitud' : fmt.ETIQ.estadoSocio[s.estado] %></span></td>
+            <td><a class="cell-link ver-ficha" href="/gestion/socios/<%= s.id %>">Ver ficha&nbsp; →</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="page-bottom socios-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

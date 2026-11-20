@@ -1,0 +1,22 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<div class="container page pedido-page">
+  <div class="page-head">
+    <h1>Pedido registrado</h1>
+    <p class="sub">Tu pedido de equipación ha quedado registrado en esta demostración.</p>
+  </div>
+  <section class="card pedido-card">
+    <h2 class="card-title pedido-titulo">Pedido confirmado</h2>
+    <div class="pedido-lineas">
+      <% pedido.lineas.forEach((l) => { %>
+        <p><%= l.prenda %> · Talla <%= l.talla %> · <%= l.cantidad %> <%= l.cantidad === 1 ? 'unidad' : 'unidades' %></p>
+      <% }) %>
+    </div>
+    <div class="pedido-datos">
+      <div class="cf"><div class="field-label">Importe total</div><div class="cf-v"><%= fmt.euros(pedido.importe_total) %></div></div>
+      <div class="cf"><div class="field-label">Descuento aplicado</div><div class="cf-v"><%= fmt.euros(pedido.descuento_aplicado) %></div></div>
+    </div>
+    <a class="btn btn-primary pedido-volver" href="/equipacion">Volver a equipación</a>
+  </section>
+</div>
+<div class="page-bottom pedido-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

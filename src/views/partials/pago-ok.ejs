@@ -1,0 +1,26 @@
+<%# Confirmación del pago simulado (mockups 22 y 41). Parámetros: eyebrow, lead, txt, descargarUrl, btn1, btn2, nota %>
+<div class="container page pago-ok-page">
+  <div class="center-card">
+    <div class="eyebrow"><%= eyebrow %></div>
+    <section class="card">
+      <span class="tag tag--soft">Pago simulado aprobado</span>
+      <h1>Pago simulado completado</h1>
+      <p class="lead"><%= lead %></p>
+      <p class="txt"><%- txt %></p>
+      <div class="pay-summary">
+        <div>
+          <div class="ps-1">Cuota anual <%= anio %> · Abonada en la simulación</div>
+          <div class="ps-2">Tarjeta de prueba terminada en <%= tarjeta %></div>
+          <div class="ps-3">Sin transacción bancaria real</div>
+        </div>
+        <div class="amount"><%= fmt.euros(importe) %></div>
+      </div>
+      <a class="btn btn-outline btn-block btn-descargar" href="<%= descargarUrl %>" download><span class="arrow">↓</span> Descargar comprobante</a>
+      <div class="btn-pair">
+        <a class="btn btn-primary btn-lg" href="<%= btn1[1] %>"><%= btn1[0] %></a>
+        <a class="btn btn-secondary btn-lg" href="<%= btn2[1] %>"><%= btn2[0] %></a>
+      </div>
+      <p class="nota"><%= nota %></p>
+    </section>
+  </div>
+</div>

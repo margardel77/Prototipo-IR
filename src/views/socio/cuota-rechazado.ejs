@@ -1,0 +1,7 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<%- include('../partials/pago-ko', {
+  eyebrow: 'Renovación · Pago de la cuota', anio: cuota.anio, importe: cuota.importe,
+  btn1: ['Volver al pago', `/cuota/pago?anio=${cuota.anio}`], btn2: ['Volver a Mi cuota', `/cuota?anio=${cuota.anio}`],
+}) %>
+<div class="page-bottom pago-ko-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

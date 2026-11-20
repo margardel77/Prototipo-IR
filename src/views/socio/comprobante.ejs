@@ -1,0 +1,26 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<% const misma = cuota.fecha_pago === cuota.fecha_emision; %>
+<div class="container page comprobante-page">
+  <div class="page-head">
+    <h1>Comprobante de pago</h1>
+    <p class="sub">Consulta del comprobante de tu cuota anual.</p>
+  </div>
+  <div class="grid grid-comprobante">
+    <section class="card comprobante-card">
+      <h2 class="comp-club">Club Ciclista de Brenes</h2>
+      <div class="eyebrow comp-eyebrow">Comprobante de cuota · <%= cuota.anio %></div>
+      <div class="cf"><div class="field-label">Cuota anual</div><div class="cf-v"><%= fmt.euros(cuota.importe) %> · Abonada</div></div>
+      <div class="cf"><div class="field-label"><%= misma ? 'Fecha de pago y emisión' : 'Fecha de pago' %></div><div class="cf-v"><%= dates.corta(cuota.fecha_pago) %></div></div>
+      <% if (!misma) { %>
+        <div class="cf"><div class="field-label">Fecha de emisión</div><div class="cf-v"><%= dates.corta(cuota.fecha_emision) %></div></div>
+      <% } %>
+      <div class="cf"><div class="field-label">Forma de pago</div><div class="cf-v"><%= fmt.ETIQ.formaPago[cuota.forma_pago] %></div></div>
+      <p class="comp-nota">Consulta de ejemplo. Este prototipo no descarga documentos reales.</p>
+    </section>
+    <div class="no-print">
+      <a class="btn btn-secondary btn-block comp-volver" href="/cuota?anio=<%= cuota.anio %>"><span class="arrow">←</span> Volver a mi cuota</a>
+    </div>
+  </div>
+</div>
+<div class="page-bottom comprobante-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

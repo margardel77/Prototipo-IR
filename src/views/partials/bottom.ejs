@@ -1,0 +1,30 @@
+<% const vb = typeof variant !== 'undefined' ? variant : 'public'; %>
+</main>
+<% if (vb === 'public') { %>
+<footer class="footer footer-public">
+  <div class="container">
+    <div>
+      <div class="name">Club Ciclista de Brenes</div>
+      <div class="addr"><%= config.club.direccion %></div>
+    </div>
+    <div class="right"><%= config.labels.publicFooter %></div>
+  </div>
+</footer>
+<% } else if (vb === 'acceso') { %>
+<footer class="footer footer-auth">
+  <div class="container">
+    <div><%= typeof pieIzq !== 'undefined' ? pieIzq : 'Club Ciclista de Brenes · Área privada para socios' %></div>
+    <div class="right"><%= typeof pieDer !== 'undefined' ? pieDer : config.labels.accesoFooterRight %></div>
+  </div>
+</footer>
+<% } else { %>
+<footer class="footer footer-area">
+  <div class="container">
+    <div><%= config.labels.areaFooterLeft %></div>
+    <div><%= vb === 'gestion' ? config.labels.gestionFooterCenter : config.labels.socioFooterCenter %></div>
+    <form method="post" action="/salir"><button class="logout" type="submit">Cerrar sesión</button></form>
+  </div>
+</footer>
+<% } %>
+</body>
+</html>

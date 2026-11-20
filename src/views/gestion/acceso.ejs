@@ -1,0 +1,39 @@
+<%- include('../partials/top', { variant: 'acceso', etiqueta: 'Junta directiva' }) %>
+<div class="container lg-page lg--gestion">
+  <a class="lg-volver" href="/salidas"><span class="arrow">←</span> Volver al área de socios</a>
+  <div class="lg">
+    <aside class="lg-panel">
+      <div class="lg-eyebrow">Área de gestión</div>
+      <h2>Solo para<br>la junta<br>directiva.</h2>
+      <p class="lg-lead">Una segunda identificación<br>para proteger la gestión del club.</p>
+      <hr>
+      <h3>Credenciales y permisos</h3>
+      <p class="lg-txt">Tener una cuenta de socio no concede acceso a los datos ni<br>a las funciones de la directiva.</p>
+      <p class="lg-lugar">Brenes · Sevilla</p>
+    </aside>
+    <div class="lg-form">
+      <div class="lg-eyebrow2">Acceso restringido</div>
+      <h1>Verifica tu identidad</h1>
+      <p class="lg-sub">Identifícate de nuevo con tu cuenta de la junta.</p>
+      <div class="lg-nota">
+        <div class="t1">Solo para miembros autorizados de la junta directiva.</div>
+        <div class="t2">El acceso requiere comprobar tus credenciales y permisos.</div>
+      </div>
+      <%- include('../partials/flash') %>
+      <form method="post" action="/gestion/acceso" novalidate>
+        <input type="hidden" name="next" value="<%= next %>">
+        <label class="lg-label" for="email">Email de la cuenta autorizada</label>
+        <input class="input lg-input" id="email" name="email" type="email" autocomplete="username" placeholder="Tu email de la junta directiva" value="<%= valores.email || '' %>" required>
+        <label class="lg-label" for="password">Contraseña</label>
+        <input class="input lg-input" id="password" name="password" type="password" autocomplete="current-password" placeholder="Introduce tu contraseña" required>
+        <button class="btn btn-primary btn-block lg-entrar" type="submit">Verificar y entrar</button>
+      </form>
+      <% if (config.demoTools) { %>
+        <a class="btn btn-block lg-otro" href="/gestion/sin-permisos">Simular una cuenta sin permisos</a>
+      <% } %>
+      <p class="lg-proto">Prototipo: esta pantalla muestra el recorrido de acceso;<br>no comprueba credenciales ni permisos reales.</p>
+    </div>
+  </div>
+</div>
+<div class="page-bottom lg-bottom"></div>
+<%- include('../partials/bottom', { variant: 'acceso', pieIzq: 'Club Ciclista de Brenes · Junta directiva' }) %>

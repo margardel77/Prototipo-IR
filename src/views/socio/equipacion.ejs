@@ -1,0 +1,25 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<div class="container page equipos-page">
+  <div class="page-head page-head--row">
+    <div>
+      <h1>Equipaciones</h1>
+      <p class="sub">Descubre las prendas y accesorios disponibles para socios.</p>
+    </div>
+    <a class="btn btn-lime2 equipos-carrito" href="/equipacion/carrito">Ver carrito</a>
+  </div>
+  <%- include('../partials/flash') %>
+  <div class="productos">
+    <% articulos.forEach((a) => { %>
+      <article class="producto">
+        <a href="/equipacion/articulos/<%= a.id %>" tabindex="-1"><%- include('../partials/foto-producto') %></a>
+        <h2><%= a.nombre %></h2>
+        <div class="precio"><%= fmt.euros(a.precio_base) %></div>
+        <p><%= a.descripcion %></p>
+        <a class="btn producto-ver" href="/equipacion/articulos/<%= a.id %>">Ver detalle</a>
+      </article>
+    <% }) %>
+  </div>
+  <div class="equipos-nota">Selecciona un artículo para consultar sus tallas y añadirlo al carrito.</div>
+</div>
+<div class="page-bottom equipos-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

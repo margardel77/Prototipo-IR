@@ -1,0 +1,80 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<% const etiquetaPrueba = (p) => `Prueba social · ${dates.corta(p.fecha)} · ${p.ruta_nombre}`; %>
+<div class="container page rp-page">
+  <div class="page-head">
+    <h1>Resultado de prueba social</h1>
+    <p class="sub">Elige la prueba, escribe el tiempo de cada socio y la clasificación y los puntos se calculan solos.</p>
+  </div>
+  <%- include('../partials/flash') %>
+  <% if (!prueba) { %>
+    <div class="empty">Todavía no hay pruebas sociales publicadas. Puedes crear una desde «Salidas» eligiendo el tipo «Prueba social».</div>
+  <% } else { const celebrada = prueba.estado_efectivo === 'REALIZADA'; %>
+  <section class="card rp-cabecera">
+    <div class="rp-izq">
+      <div class="vp-eyebrow">Prueba social</div>
+      <div class="dropdown rp-dropdown" data-dropdown>
+        <button class="dropdown-trigger" type="button" data-dropdown-toggle aria-haspopup="listbox" aria-expanded="false">
+          <span><%= etiquetaPrueba(prueba) %></span>
+          <svg width="14" height="9" viewBox="0 0 14 9" aria-hidden="true"><path d="M1 1.5l6 6 6-6" fill="none" stroke="#20291F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="dropdown-menu" role="listbox">
+          <% pruebas.forEach((p) => { %>
+            <a href="/gestion/pruebas?salida=<%= p.id %>" class="<%= p.id === prueba.id ? 'is-current' : '' %>">
+              <div><div class="t1">Prueba social · <%= dates.corta(p.fecha) %></div><div class="t2"><%= p.ruta_nombre %> · <%= p.resumen.inscritos %> inscritos · <%= p.resumen.conTiempo %> con tiempo</div></div>
+              <% if (p.id === prueba.id) { %><span class="dot"></span><% } %>
+            </a>
+          <% }) %>
+          <p class="dropdown-nota">Al elegir otra prueba se cargan sus inscritos y sus tiempos.</p>
+        </div>
+      </div>
+    </div>
+    <div class="rp-der">
+      <div class="vp-fecha"><%= dates.media(prueba.fecha) %> · <%= prueba.hora %></div>
+      <div class="rp-cuenta"><span data-num-inscritos><%= filas.length %></span> socios inscritos · <span data-num-tiempo><%= filas.filter((f) => f.tiempo_segundos > 0).length %></span> con tiempo</div>
+    </div>
+  </section>
+
+  <form method="post" action="/gestion/pruebas/<%= prueba.id %>" data-prueba-form>
+    <div class="tcard table-wrap rp-tabla">
+      <table>
+        <thead><tr><th class="c1">Puesto (auto)</th><th class="c2">Socio inscrito</th><th class="c3">Tiempo · hh:mm:ss</th><th class="c4">Puntos (auto)</th><th class="c5">Estado</th></tr></thead>
+        <tbody data-prueba-body>
+          <% if (!filas.length) { %><tr><td colspan="5" class="muted">No hay socios inscritos en esta prueba.</td></tr><% } %>
+          <% filas.forEach((f) => { const tiene = f.tiempo_segundos > 0; %>
+            <tr data-prueba-fila>
+              <td><span class="pos <%= tiene ? '' : 'is-empty' %>" data-pos><%= tiene ? f.posicion : '—' %></span></td>
+              <td>
+                <div class="cell-strong"><%= f.nombre %> <%= f.apellidos %></div>
+                <div class="cell-sub"><%= f.origen === 'MANUAL' ? 'Alta manual' : 'Inscrito desde la aplicación' %></div>
+              </td>
+              <td>
+                <input class="time-input <%= tiene ? '' : 'is-empty' %>" name="tiempo[<%= f.socio_id %>]" value="<%= tiene ? fmt.segundosAHms(f.tiempo_segundos) : '' %>" placeholder="00:00:00" inputmode="numeric" pattern="\d{1,2}:[0-5]\d:[0-5]\d" aria-label="Tiempo de <%= f.nombre %> <%= f.apellidos %>" data-tiempo <%= celebrada ? '' : 'disabled' %>>
+              </td>
+              <td><span class="pts" data-pts><%= tiene ? `${f.puntos} pts` : '—' %></span></td>
+              <td data-estado><% if (tiene) { %><span class="estado-pill">Clasificado</span><% } else { %><span class="estado-text">Escribe el tiempo</span><% } %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <button class="tcard-add" type="button" data-modal-open="modal-anadir">
+        <span class="plus">+</span>
+        <span><span class="t1">Añadir socio</span><span class="t2">Para socios que no se han inscrito desde la aplicación</span></span>
+      </button>
+    </div>
+    <div class="baremo">
+      <div class="t1">Baremo automático</div>
+      <div class="t2">1.º 120 pts &nbsp;·&nbsp; 2.º 105 pts &nbsp;·&nbsp; 3.º 90 pts &nbsp;·&nbsp; del 4.º al 20.º se restan 5 pts por puesto (el 20.º suma 5) &nbsp;·&nbsp; del 20.º en adelante, 5 pts para todos.</div>
+    </div>
+    <div class="rp-pie">
+      <div class="rp-guardar">
+        <button class="btn btn-primary rp-b1" type="submit" <%= celebrada && filas.length ? '' : 'disabled' %>>Guardar resultado</button>
+        <span class="rp-hint"><%= celebrada ? 'Los puestos y los puntos se recalculan al cambiar cualquier tiempo.' : 'Podrás registrar los tiempos cuando se haya celebrado la prueba.' %></span>
+      </div>
+      <a class="btn btn-secondary rp-b2" href="/gestion/participacion"><span class="arrow">←</span> Volver a participaciones</a>
+    </div>
+  </form>
+  <%- include('../partials/modal-anadir', { salidaSel: prueba, volverA: 'pruebas' }) %>
+  <% } %>
+</div>
+<div class="page-bottom rp-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

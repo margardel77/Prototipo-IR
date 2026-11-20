@@ -1,0 +1,24 @@
+<%- include('../partials/top', { variant: 'acceso', etiqueta: 'Junta directiva' }) %>
+<% const porCargo = typeof motivo !== 'undefined' && motivo === 'permiso'; %>
+<div class="container page sp-page">
+  <div class="center-card">
+    <section class="card sp-card">
+      <span class="tag tag--danger sp-tag">Acceso restringido</span>
+      <h1>No tienes permisos para entrar</h1>
+      <% if (porCargo) { %>
+        <p class="lead">Tu cargo en la junta no incluye esta función de gestión.</p>
+        <p class="txt">Puedes volver a la gestión y usar las funciones de tu cargo, o continuar en tu área de socio. Si crees que es un error, contacta con la directiva.</p>
+      <% } else { %>
+        <p class="lead">Esta cuenta no pertenece a la junta directiva o no tiene permisos activos para acceder a la gestión.</p>
+        <p class="txt">Puedes volver a identificarte con una cuenta autorizada o continuar en tu área de socio. Si crees que es un error, contacta con la directiva.</p>
+      <% } %>
+      <div class="btn-pair">
+        <a class="btn btn-primary btn-lg" href="<%= porCargo ? '/gestion' : '/gestion/acceso' %>"><%= porCargo ? 'Volver a la gestión' : 'Volver a identificarme' %></a>
+        <a class="btn btn-secondary btn-lg" href="/salidas">Volver al área de socios</a>
+      </div>
+      <p class="sp-bloqueo">El acceso a las funciones de gestión permanece bloqueado.</p>
+    </section>
+  </div>
+</div>
+<div class="page-bottom sp-bottom"></div>
+<%- include('../partials/bottom', { variant: 'acceso', pieIzq: 'Club Ciclista de Brenes · Junta directiva' }) %>

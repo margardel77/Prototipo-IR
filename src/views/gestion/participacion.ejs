@@ -1,0 +1,82 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<div class="container page vp-page">
+  <div class="page-head">
+    <h1>Participación de la ruta</h1>
+    <p class="sub">Todos los inscritos, hayan declarado o no. Confirma en persona o revisa su prueba.</p>
+  </div>
+  <%- include('../partials/flash') %>
+  <% if (!salida) { %>
+    <div class="empty">Todavía no hay salidas realizadas cuya participación se pueda validar.</div>
+  <% } else { %>
+  <section class="card vp-salida">
+    <div class="vp-izq">
+      <div class="vp-eyebrow">Salida seleccionada</div>
+      <div class="dropdown vp-dropdown" data-dropdown>
+        <button class="dropdown-trigger vp-trigger" type="button" data-dropdown-toggle aria-haspopup="listbox" aria-expanded="false" title="Elegir otra salida">
+          <span><%= salida.ruta_nombre %></span>
+          <svg width="14" height="9" viewBox="0 0 14 9" aria-hidden="true"><path d="M1 1.5l6 6 6-6" fill="none" stroke="#20291F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="dropdown-menu" role="listbox">
+          <% lista.forEach((s) => { const n = pendientes.get(s.id) || 0; %>
+            <a href="/gestion/participacion?salida=<%= s.id %>" class="<%= s.id === salida.id ? 'is-current' : '' %>">
+              <div><div class="t1"><%= s.ruta_nombre %> · <%= dates.corta(s.fecha) %></div><div class="t2"><%= fmt.ETIQ.tipoSalida[s.tipo] %> · <%= s.num_inscritos %> inscritos<%= n ? ` · ${n} pendientes de validar` : '' %></div></div>
+              <% if (s.id === salida.id) { %><span class="dot"></span><% } %>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+    <div class="vp-der">
+      <div class="vp-fecha"><%= dates.media(salida.fecha) %> · <%= salida.hora %></div>
+      <div class="vp-cuenta"><span class="vp-n"><%= filas.length %></span><%= filas.length === 1 ? 'socio inscrito' : 'socios inscritos' %> · Lista completa</div>
+    </div>
+  </section>
+
+  <div class="tcard tcard--zebra table-wrap vp-tabla">
+    <table>
+      <thead><tr><th class="c1">Socio inscrito</th><th class="c2">Declaración / prueba</th><th class="c3">Asistencia</th><th class="c4">Puntos</th><th>Confirmación presencial</th></tr></thead>
+      <tbody>
+        <% if (!filas.length) { %><tr><td colspan="5" class="muted">Nadie se ha inscrito en esta salida. Puedes añadir a los socios que hayan acudido.</td></tr><% } %>
+        <% filas.forEach((f) => {
+             const url = `/gestion/participacion/${salida.id}/socio/${f.socio_id}`;
+             const estado = f.estado_validacion || 'PENDIENTE'; %>
+          <tr>
+            <td><a class="name-chip" href="<%= url %>"><%= f.nombre %> <%= f.apellidos %></a></td>
+            <td class="vp-decl">
+              <% if (f.fecha_declaracion) { %>
+                <a class="cell-strong" href="<%= url %>"><%= f.evidencia_archivo ? 'Foto adjunta' : 'Sin foto' %> · Ver prueba</a>
+                <div class="cell-sub"><%= dates.diaHora(f.fecha_declaracion) %></div>
+              <% } else { %>
+                <div class="cell-strong vp-sinfoto">Sin foto</div>
+                <div class="cell-sub"><%= f.origen === 'MANUAL' ? 'Añadido por la directiva' : 'Sin declarar' %></div>
+              <% } %>
+            </td>
+            <td class="strong"><%= fmt.ETIQ.validacion[estado] %></td>
+            <td><%= estado === 'APROBADA' && f.puntos_asignados != null ? f.puntos_asignados : '—' %></td>
+            <td>
+              <% if (estado === 'APROBADA') { %>
+                <span class="btn btn-secondary is-disabled vp-btn">Confirmada</span>
+              <% } else { %>
+                <form method="post" action="<%= url %>/confirmar">
+                  <input type="hidden" name="volver" value="lista">
+                  <button class="btn btn-primary vp-btn" type="submit">Confirmar asistencia</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <button class="tcard-add" type="button" data-modal-open="modal-anadir">
+      <span class="plus">+</span>
+      <span><span class="t1">Añadir socio</span><span class="t2">Para socios que no se han inscrito desde la aplicación</span></span>
+    </button>
+  </div>
+  <% } %>
+  <div class="vp-pie">
+    <a class="btn btn-white vp-pruebas" href="/gestion/pruebas">Resultados de pruebas sociales</a>
+  </div>
+</div>
+<% if (salida) { %><%- include('../partials/modal-anadir', { salidaSel: salida, volverA: 'participacion' }) %><% } %>
+<div class="page-bottom vp-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

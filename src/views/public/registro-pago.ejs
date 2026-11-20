@@ -1,0 +1,9 @@
+<%- include('../partials/top', { variant: 'acceso', etiqueta: 'Registro · Pago' }) %>
+<%- include('../partials/pago-form', {
+  eyebrow: 'Paso 2 de 3 · Pago de la cuota', h1: 'Completa tu registro', accion: '/registro/pago',
+  resumenTitulo: 'Resumen del registro', resumenEjercicio: 'Nuevo registro',
+  notaRecorrido: 'Tras el pago simulado, la solicitud seguirá pendiente de<br>revisión por la directiva.',
+  volverUrl: '/registro', volverTexto: 'Volver a mis datos', rechazadoUrl: '/registro/pago/rechazado',
+}) %>
+<div class="page-bottom pago-bottom is-auth"></div>
+<%- include('../partials/bottom', { variant: 'acceso', pieIzq: 'Club Ciclista de Brenes · Registro', pieDer: config.labels.pagoFooterRight }) %>

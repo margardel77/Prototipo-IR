@@ -1,0 +1,29 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<% const dia = dates.diaSemana(salida.fecha); %>
+<div class="container page insc-page">
+  <div class="page-head">
+    <h1><%= salida.ruta_nombre %></h1>
+    <p class="sub"><%= dates.larga(salida.fecha) %> · <%= salida.hora %></p>
+  </div>
+  <%- include('../partials/flash') %>
+  <section class="card insc-card">
+    <span class="tag insc-tag">Apuntado</span>
+    <h2 class="insc-titulo">Inscripción registrada</h2>
+    <p class="insc-lead">Hemos guardado que tienes previsto asistir a esta salida.</p>
+    <p class="insc-txt"><%= salida.tipo === 'PRUEBA_SOCIAL' ? 'Tu tiempo y tus puntos los registrará la directiva tras la prueba.' : `Puedes enviarla el ${dia} de la salida o cualquier día posterior, una sola vez.` %></p>
+    <div class="insc-botones">
+      <% if (decl.estado === 'DISPONIBLE') { %>
+        <a class="btn btn-secondary insc-b1" href="/salidas/<%= salida.id %>/declarar">Declarar asistencia</a>
+      <% } else if (decl.estado === 'ANTES') { %>
+        <span class="btn btn-secondary insc-b1 is-disabled">Disponible el <%= dia %></span>
+      <% } else if (decl.participacion) { %>
+        <a class="btn btn-secondary insc-b1" href="/salidas/<%= salida.id %>/participacion">Ver mi participación</a>
+      <% } %>
+      <a class="btn btn-secondary insc-b2" href="/salidas/<%= salida.id %>">Ver detalle de la ruta</a>
+    </div>
+  </section>
+  <div class="insc-volver"><a class="link-back" href="/salidas"><span class="arrow">←</span> Volver a salidas</a></div>
+  <%- include('../partials/fecha-prueba', { extraClass: 'insc-prueba' }) %>
+</div>
+<div class="page-bottom insc-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

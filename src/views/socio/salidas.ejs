@@ -1,0 +1,41 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<div class="container page">
+  <div class="page-head">
+    <h1>Salidas del club</h1>
+    <p class="sub">Consulta el recorrido y apúntate a la salida en la que quieras participar.</p>
+  </div>
+  <%- include('../partials/flash') %>
+
+  <% if (!salidas.length) { %>
+    <div class="empty">No hay salidas publicadas en este momento.</div>
+  <% } %>
+  <% salidas.forEach((s) => { %>
+    <article class="salida-row">
+      <div class="date-box">
+        <span class="d"><%= dates.corta(s.fecha).split(' ')[0] %></span>
+        <span class="m"><%= dates.mesAbrMayus(s.fecha) %></span>
+      </div>
+      <div class="info">
+        <h3><a href="/salidas/<%= s.id %>"><%= s.ruta_nombre %></a></h3>
+        <p class="meta"><%= dates.cap(dates.diaSemana(s.fecha)) %> · <%= s.hora %> · <%= fmt.km(s.kilometros) %><% if (s.tipo !== 'SEMANAL') { %> · <%= fmt.ETIQ.tipoSalida[s.tipo] %><% } %></p>
+      </div>
+      <div class="acciones">
+        <a class="ver" href="/salidas/<%= s.id %>">Ver detalle</a>
+        <% if (s.inscrito) { %>
+          <a class="btn btn-secondary" href="/salidas/<%= s.id %>">Apuntado</a>
+        <% } else if (!s.plazo.abierto) { %>
+          <span class="btn btn-secondary is-disabled" title="Plazo de consulta: del <%= dates.corta(s.plazo.apertura) %> al <%= dates.corta(dates.addDays(s.plazo.cierre, -1)) %>">Plazo cerrado</span>
+        <% } else { %>
+          <form method="post" action="/salidas/<%= s.id %>/apuntarme"><button class="btn btn-primary" type="submit">Apuntarme</button></form>
+        <% } %>
+      </div>
+    </article>
+  <% }) %>
+
+  <% if (permisos.length) { %>
+    <div class="gestion-note">La gestión requiere una segunda identificación y permisos de junta directiva.</div>
+  <% } else { %>
+    <div style="height:18px"></div>
+  <% } %>
+</div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

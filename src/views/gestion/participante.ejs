@@ -1,0 +1,63 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<%
+  const estado = f.estado_validacion || 'PENDIENTE';
+  const base = `/gestion/participacion/${salida.id}/socio/${f.socio_id}`;
+  const sinDeclaracion = !f.fecha_declaracion;
+  const conRechazo = !sinDeclaracion && estado !== 'RECHAZADA';
+%>
+<div class="container page va-page">
+  <a class="btn btn-secondary va-volver" href="/gestion/participacion?salida=<%= salida.id %>"><span class="arrow">←</span> Volver a la lista</a>
+  <div class="va-head">
+    <h1><%= f.nombre %> <%= f.apellidos %></h1>
+    <p class="va-sub"><%= salida.ruta_nombre %></p>
+  </div>
+  <%- include('../partials/flash') %>
+  <div class="grid grid-main-side stretch">
+    <section class="card va-card">
+      <% if (f.fecha_declaracion && f.evidencia_archivo) { %>
+        <h2 class="va-titulo">Prueba de asistencia</h2>
+        <p class="va-meta">Declaración recibida · <%= dates.diaHora(f.fecha_declaracion) %></p>
+        <a href="/evidencias/<%= f.evidencia_archivo %>" target="_blank" rel="noopener"><img class="evidencia-img" src="/evidencias/<%= f.evidencia_archivo %>" alt="Fotografía aportada por <%= f.nombre %> <%= f.apellidos %>"></a>
+        <p class="va-archivo"><%= f.evidencia_nombre || 'foto' %></p>
+        <p class="va-pie-foto">Foto de ejemplo del prototipo; no es una prueba real.</p>
+      <% } else if (f.fecha_declaracion) { %>
+        <h2 class="va-titulo">Declaración sin foto</h2>
+        <p class="va-meta">Declaración recibida · <%= dates.diaHora(f.fecha_declaracion) %></p>
+        <h3 class="va-h3">Este socio no ha adjuntado una foto.</h3>
+        <p class="va-txt">Ha declarado su asistencia sin evidencia. Puedes confirmarla si la directiva lo ha comprobado en persona.</p>
+      <% } else { %>
+        <h2 class="va-titulo">Sin prueba adjunta</h2>
+        <p class="va-meta"><%= f.origen === 'MANUAL' ? 'Añadida a la ruta por la directiva' : 'Inscrito en la ruta · Todavía no ha declarado' %></p>
+        <h3 class="va-h3">Este socio no ha adjuntado una foto.</h3>
+        <p class="va-txt">Si la directiva está pasando lista, puede confirmar la asistencia directamente, sin declaración ni fotografía.</p>
+        <p class="va-nota">La fotografía no es un requisito para la validación presencial.</p>
+      <% } %>
+    </section>
+
+    <section class="card card--soft va-lateral">
+      <h2 class="va-titulo">Validación de asistencia</h2>
+      <div class="va-estado-l">Estado</div>
+      <div class="va-estado"><%= fmt.ETIQ.validacion[estado] %></div>
+      <div class="kv va-kv">
+        <span class="k">Puntos de asistencia</span>
+        <span class="v"><%= estado === 'APROBADA' && f.puntos_asignados != null ? f.puntos_asignados : '—' %></span>
+      </div>
+      <% if (estado === 'APROBADA') { %>
+        <span class="btn btn-primary btn-block is-disabled va-b1">Confirmada</span>
+      <% } else { %>
+        <form method="post" action="<%= base %>/confirmar" class="va-b1">
+          <button class="btn btn-primary btn-block" type="submit">Confirmar asistencia</button>
+        </form>
+      <% } %>
+      <% if (conRechazo) { %>
+        <form method="post" action="<%= base %>/rechazar" class="va-b2" data-confirm="¿Rechazar la declaración de <%= f.nombre %> <%= f.apellidos %>?<%= estado === 'APROBADA' ? ' Se retirarán los puntos asignados.' : '' %>">
+          <button class="btn btn-white btn-block" type="submit">Rechazar declaración</button>
+        </form>
+      <% } %>
+      <p class="va-ayuda<%= conRechazo ? '' : ' is-solo' %>">La directiva puede confirmar en persona sin exigir una foto.</p>
+      <p class="va-conserva">La lista conserva el estado al volver.</p>
+    </section>
+  </div>
+</div>
+<div class="page-bottom va-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

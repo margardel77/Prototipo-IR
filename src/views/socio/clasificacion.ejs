@@ -1,0 +1,78 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<%
+  // Construye la URL conservando el estado de las dos secciones
+  const estado = { periodo: periodo.clave, cat, fecha: fecha || '', catsal: catSalida };
+  const url = (cambios) => {
+    const q = new URLSearchParams(Object.entries({ ...estado, ...cambios }).filter(([, v]) => v));
+    const s = q.toString();
+    return `/clasificacion${s ? `?${s}` : ''}`;
+  };
+  const chev = (dir) => `<svg width="8" height="13" viewBox="0 0 8 13" aria-hidden="true"><path d="${dir === 'l' ? 'M6.5 1.5l-5 5 5 5' : 'M1.5 1.5l5 5-5 5'}" fill="none" stroke="#425137" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const tabla = (filas, vacio) => `
+    <div class="table-wrap"><table class="table clasif-tabla">
+      <thead><tr><th class="c1">Puesto</th><th class="c2">Socio</th><th class="c3">Edad</th><th>Puntos</th></tr></thead>
+      <tbody>${filas.length ? filas.map((f) => `<tr${usuario && f.socio_id === usuario.id ? ' class="is-me"' : ''}><td>${f.puesto}</td><td>${(f.nombre + ' ' + f.apellidos).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</td><td>${f.edad} años</td><td>${f.puntos}</td></tr>`).join('') : `<tr><td colspan="4" class="muted">${vacio}</td></tr>`}</tbody>
+    </table></div>`;
+%>
+<div class="container page clasif-page">
+  <div class="page-head">
+    <h1>Clasificación</h1>
+    <p class="sub">Consulta calculada a partir de las participaciones validadas.</p>
+  </div>
+
+  <section class="clasif-seccion" id="general" data-print-section>
+    <h2>Clasificación general de puntos</h2>
+    <p class="clasif-desc">Consulta los puntos acumulados en cada período.</p>
+    <div class="clasif-controles">
+      <div class="clasif-nav">
+        <% if (anterior) { %><a class="clasif-flecha" href="<%= url({ periodo: anterior.clave }) %>#general" aria-label="Período anterior"><%- chev('l') %></a><% } else { %><span class="clasif-flecha is-disabled" aria-hidden="true"><%- chev('l') %></span><% } %>
+        <span class="clasif-valor"><%= dates.etiquetaPeriodoCorta(periodo) %></span>
+        <% if (siguiente) { %><a class="clasif-flecha" href="<%= url({ periodo: siguiente.clave }) %>#general" aria-label="Período siguiente"><%- chev('r') %></a><% } else { %><span class="clasif-flecha is-disabled" aria-hidden="true"><%- chev('r') %></span><% } %>
+      </div>
+      <form class="clasif-cat" method="get" action="/clasificacion#general">
+        <% Object.entries(estado).filter(([k, v]) => k !== 'cat' && v).forEach(([k, v]) => { %><input type="hidden" name="<%= k %>" value="<%= v %>"><% }) %>
+        <label for="cat">Categoría de edad</label>
+        <select class="clasif-select" id="cat" name="cat" data-autosubmit>
+          <option value="">Todas las edades</option>
+          <% categorias.forEach((c) => { %><option value="<%= c.clave %>" <%= c.clave === cat ? 'selected' : '' %>><%= c.etiqueta %></option><% }) %>
+        </select>
+      </form>
+      <button class="clasif-imprimir" type="button" data-print-target="general">Imprimir</button>
+    </div>
+    <%- tabla(filas, 'Todavía no hay participaciones validadas en este período.') %>
+  </section>
+
+  <section class="clasif-seccion clasif-seccion--salidas" id="salidas" data-print-section>
+    <h2>Clasificación de salidas</h2>
+    <p class="clasif-desc">Consulta las participaciones de una fecha concreta.</p>
+    <div class="clasif-controles">
+      <div class="clasif-nav">
+        <% if (fechaAnterior) { %><a class="clasif-flecha" href="<%= url({ fecha: fechaAnterior }) %>#salidas" aria-label="Fecha anterior"><%- chev('l') %></a><% } else { %><span class="clasif-flecha is-disabled" aria-hidden="true"><%- chev('l') %></span><% } %>
+        <form class="clasif-valor clasif-fecha" method="get" action="/clasificacion#salidas">
+          <% Object.entries(estado).filter(([k, v]) => k !== 'fecha' && v).forEach(([k, v]) => { %><input type="hidden" name="<%= k %>" value="<%= v %>"><% }) %>
+          <svg width="17" height="17" viewBox="0 0 17 17" aria-hidden="true"><rect x="1" y="2.2" width="15" height="13.6" rx="2.6" fill="none" stroke="#425137" stroke-width="1.6"/><path d="M1 6.6h15M5 0.8v3M12 0.8v3" stroke="#425137" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span><%= fecha ? dates.corta(fecha) : 'Elige una fecha' %></span>
+          <input type="date" name="fecha" value="<%= fecha || '' %>" aria-label="Fecha de la salida" data-autosubmit>
+        </form>
+        <% if (fechaSiguiente) { %><a class="clasif-flecha" href="<%= url({ fecha: fechaSiguiente }) %>#salidas" aria-label="Fecha siguiente"><%- chev('r') %></a><% } else { %><span class="clasif-flecha is-disabled" aria-hidden="true"><%- chev('r') %></span><% } %>
+      </div>
+      <form class="clasif-cat" method="get" action="/clasificacion#salidas">
+        <% Object.entries(estado).filter(([k, v]) => k !== 'catsal' && v).forEach(([k, v]) => { %><input type="hidden" name="<%= k %>" value="<%= v %>"><% }) %>
+        <label for="catsal">Categoría de edad</label>
+        <select class="clasif-select" id="catsal" name="catsal" data-autosubmit>
+          <option value="">Todas las edades</option>
+          <% categorias.forEach((c) => { %><option value="<%= c.clave %>" <%= c.clave === catSalida ? 'selected' : '' %>><%= c.etiqueta %></option><% }) %>
+        </select>
+      </form>
+      <button class="clasif-imprimir" type="button" data-print-target="salidas">Imprimir</button>
+    </div>
+    <%- tabla(filasSalida, fecha ? 'No hay ninguna prueba social con resultado en esta fecha.' : 'Todavía no hay resultados de pruebas sociales.') %>
+  </section>
+
+  <div class="clasif-nota no-print">
+    <div class="t1">Categorías de edad</div>
+    <div class="t2">Por ejemplo, Máster 30 incluye socios de 30 a 39 años.</div>
+  </div>
+</div>
+<div class="page-bottom clasif-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>

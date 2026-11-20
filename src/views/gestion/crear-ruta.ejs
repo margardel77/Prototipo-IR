@@ -1,0 +1,54 @@
+<%- include('../partials/top', { variant: 'gestion' }) %>
+<%
+  const err = (k) => errores[k] ? `<div class="field-error">${errores[k]}</div>` : '';
+  const cls = (k) => errores[k] ? 'input input--md has-error' : 'input input--md';
+  const val = (k) => valores[k] || '';
+%>
+<div class="container page">
+  <div class="page-head">
+    <h1>Crear ruta</h1>
+    <p class="sub">Guarda el recorrido para seleccionarlo al preparar una salida.</p>
+  </div>
+  <%- include('../partials/flash') %>
+  <section class="card cruta-card">
+    <form method="post" action="/gestion/rutas" novalidate>
+      <div class="ruta-fila ruta-fila--1">
+        <div>
+          <label class="prep-label" for="nombre">Nombre de la ruta</label>
+          <input class="<%= cls('nombre') %>" id="nombre" name="nombre" placeholder="Caminos y olivares" value="<%= val('nombre') %>" required>
+          <%- err('nombre') %>
+        </div>
+        <div>
+          <label class="prep-label" for="kilometros">Distancia (km)</label>
+          <input class="<%= cls('kilometros') %>" id="kilometros" name="kilometros" inputmode="decimal" placeholder="45" value="<%= val('kilometros') %>" required>
+          <%- err('kilometros') %>
+        </div>
+      </div>
+      <div class="ruta-campo">
+        <label class="prep-label" for="recorrido">Recorrido</label>
+        <input class="<%= cls('recorrido') %>" id="recorrido" name="recorrido" placeholder="Brenes, camino de los olivares, ribera y regreso a Brenes" value="<%= val('recorrido') %>" required>
+        <%- err('recorrido') %>
+      </div>
+      <div class="ruta-campo">
+        <label class="prep-label" for="puntos_intermedios">Puntos intermedios</label>
+        <input class="input input--md" id="puntos_intermedios" name="puntos_intermedios" placeholder="Camino de los olivares y ribera" value="<%= val('puntos_intermedios') %>">
+      </div>
+      <div class="ruta-fila ruta-campo">
+        <div>
+          <label class="prep-label" for="vuelta_a">Vuelta A</label>
+          <input class="input input--md" id="vuelta_a" name="vuelta_a" placeholder="Por la ribera" value="<%= val('vuelta_a') %>">
+        </div>
+        <div>
+          <label class="prep-label" for="vuelta_b">Vuelta B</label>
+          <input class="input input--md" id="vuelta_b" name="vuelta_b" placeholder="Por el pueblo" value="<%= val('vuelta_b') %>">
+        </div>
+      </div>
+      <div class="ruta-botones">
+        <a class="btn btn-secondary ruta-cancelar" href="/gestion/salidas">Cancelar</a>
+        <button class="btn btn-primary ruta-guardar" type="submit">Guardar ruta</button>
+      </div>
+    </form>
+  </section>
+</div>
+<div class="page-bottom ruta-bottom"></div>
+<%- include('../partials/bottom', { variant: 'gestion' }) %>

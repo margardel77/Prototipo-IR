@@ -1,0 +1,68 @@
+<%- include('../partials/top', { variant: 'public' }) %>
+<div class="container">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">El club, sobre ruedas</div>
+      <h1>Salidas semanales</h1>
+      <p class="sub">Tu próxima ruta empieza aquí. Consulta el recorrido y elige tu salida.</p>
+    </div>
+    <div class="hero-aside">
+      <span class="pill">Abiertas a la consulta de todos</span>
+      <p>Para inscribirte, inicia sesión con tu cuenta de socio.</p>
+    </div>
+  </section>
+  <div class="hr"></div>
+
+  <% if (!grupos.length) { %>
+    <div class="cal-head"><h2>Calendario</h2></div>
+    <div class="empty">No hay salidas publicadas en este momento. Vuelve a consultarlo pronto.</div>
+  <% } %>
+
+  <% let marcada = false; %>
+  <% grupos.forEach((g) => {
+       const semanales = g.salidas.filter((s) => s.tipo === 'SEMANAL').length;
+       const todasSemanales = semanales === g.salidas.length; %>
+    <div class="cal-head">
+      <h2>Calendario de <%= g.mes %></h2>
+      <div class="meta"><%= g.anio %><span>/</span><%= g.salidas.length %> <%= todasSemanales ? (g.salidas.length === 1 ? 'SALIDA SEMANAL' : 'SALIDAS SEMANALES') : (g.salidas.length === 1 ? 'SALIDA' : 'SALIDAS') %></div>
+    </div>
+    <% g.salidas.forEach((s) => {
+         const proxima = !marcada && s.estado_efectivo === 'PUBLICADA';
+         if (proxima) marcada = true; %>
+      <article class="ruta-card">
+        <div class="date-box <%= proxima ? 'is-next' : '' %>">
+          <span class="d"><%= dates.corta(s.fecha).split(' ')[0] %></span>
+          <span class="m"><%= dates.mesAbrMayus(s.fecha) %></span>
+        </div>
+        <div class="ruta-main">
+          <div class="when"><%= dates.diaSemana(s.fecha).toUpperCase() %> · <%= s.hora %></div>
+          <h3><%= s.ruta_nombre %></h3>
+          <p class="trayecto"><%= s.recorrido %></p>
+          <% if (s.puntos_intermedios) { %><p class="paso">Puntos de paso: <%= s.puntos_intermedios %></p><% } %>
+          <% if (s.vuelta_a || s.vuelta_b) { %>
+            <div class="vueltas">
+              <div class="vuelta"><b>A</b><%= s.vuelta_a || '—' %></div>
+              <div class="vuelta"><b>B</b><%= s.vuelta_b || '—' %></div>
+            </div>
+          <% } %>
+        </div>
+        <div class="ruta-km">
+          <div class="v"><%= fmt.km(s.kilometros) %></div>
+          <div class="l">Distancia total</div>
+        </div>
+        <div class="ruta-side">
+          <div class="estado"><%= fmt.ETIQ.tipoSalida[s.tipo].toUpperCase() %><span>·</span><%= fmt.ETIQ.estadoSalida[s.estado_efectivo].toUpperCase() %></div>
+          <a class="btn btn-primary" href="/acceso?next=<%= encodeURIComponent('/salidas/' + s.id) %>">Inscribirse</a>
+          <p class="need">Necesitas iniciar sesión</p>
+          <p class="pub">Publicada el <%= dates.corta(s.fecha_publicacion) %></p>
+        </div>
+      </article>
+    <% }) %>
+  <% }) %>
+
+  <section class="banner">
+    <h3>La ruta es pública. La inscripción, para socios.</h3>
+    <p>Inicia sesión para apuntarte. Los datos personales y el área de socios no se muestran en esta página.</p>
+  </section>
+</div>
+<%- include('../partials/bottom', { variant: 'public' }) %>

@@ -1,0 +1,37 @@
+<%- include('../partials/top', { variant: 'socio' }) %>
+<%
+  const titulos = { PENDIENTE: 'Pendiente de validación', APROBADA: 'Participación validada', RECHAZADA: 'Declaración rechazada' };
+  const puntos = salida.tipo === 'SEMANAL' ? `Una salida semanal otorga ${config.puntosPorTipo.SEMANAL} puntos solo cuando se valida tu participación.` : 'Los puntos solo se asignan cuando la directiva valida tu participación.';
+%>
+<div class="container page part-page">
+  <div class="page-head">
+    <h1>Mi participación</h1>
+    <p class="sub"><%= salida.ruta_nombre %> · <%= dates.corta(salida.fecha) %> · <%= salida.hora %></p>
+  </div>
+  <%- include('../partials/flash') %>
+  <div class="grid grid-main-side">
+    <section class="card part-card">
+      <h2 class="card-title part-titulo"><%= titulos[p.estado_validacion] %></h2>
+      <div class="dcl-f part-f1"><div class="field-label">Salida</div><div class="dcl-v"><%= salida.ruta_nombre %></div></div>
+      <div class="dcl-f"><div class="field-label">Evidencia adjunta</div>
+        <div class="dcl-v">
+          <% if (p.evidencia_archivo) { %><a href="/evidencias/<%= p.evidencia_archivo %>" target="_blank" rel="noopener"><%= p.evidencia_nombre || 'foto' %></a><% } else { %>Sin fotografía<% } %>
+        </div>
+      </div>
+      <div class="dcl-f"><div class="field-label">Puntos asignados</div><div class="dcl-v"><%= p.estado_validacion === 'APROBADA' && p.puntos_asignados != null ? p.puntos_asignados : '—' %></div></div>
+      <p class="part-txt">
+        <% if (p.estado_validacion === 'PENDIENTE') { %>La directiva revisará la asistencia antes de asignar los puntos.
+        <% } else if (p.estado_validacion === 'APROBADA') { %>La directiva ha validado tu asistencia<%= p.fecha_validacion ? ` el ${dates.corta(p.fecha_validacion.slice(0, 10))}` : '' %>. Los puntos ya cuentan en la clasificación.
+        <% } else { %>La directiva no ha podido validar tu asistencia. Si crees que es un error, contacta con ella.<% } %>
+      </p>
+      <a class="btn btn-primary part-volver" href="/salidas">Volver a salidas</a>
+    </section>
+    <section class="card card--soft part-lateral">
+      <h2><%= p.fecha_declaracion ? 'Tu declaración está enviada' : 'Asistencia confirmada en persona' %></h2>
+      <p><%= puntos %></p>
+      <p><%= p.fecha_declaracion ? 'Ya has enviado tu declaración para esta ruta. No puedes enviarla otra vez.' : 'La directiva ha registrado tu asistencia directamente; no necesitas enviar una declaración.' %></p>
+    </section>
+  </div>
+</div>
+<div class="page-bottom part-bottom"></div>
+<%- include('../partials/bottom', { variant: 'socio' }) %>
