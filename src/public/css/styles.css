@@ -76,6 +76,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn-primary:hover { background: var(--lime-hover); }
 .btn-secondary { background: var(--soft); color: var(--dark); }
 .btn-secondary:hover { background: #DFE5D2; }
+.btn-danger { background: var(--danger); color: var(--white); }
+.btn-danger:hover { filter: brightness(.9); }
 .btn-white { background: var(--white); color: var(--dark); }
 .btn-white:hover { background: #FAFAF6; }
 .btn-plain { background: transparent; color: var(--dark); padding: 0 12px; }
@@ -110,7 +112,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .grid-main-side { grid-template-columns: minmax(0, 824fr) minmax(0, 464fr); }
 .grid-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .grid-ficha { grid-template-columns: minmax(0, 612fr) minmax(0, 676fr); }
-.grid-cuota { grid-template-columns: minmax(0, 632fr) minmax(0, 656fr); }
+.grid-cuota { grid-template-columns: minmax(0, 1fr); }
 .grid-comprobante { grid-template-columns: minmax(0, 940fr) minmax(0, 336fr); gap: 36px; }
 .stretch > .card { align-self: stretch; }
 .stack { display: flex; flex-direction: column; gap: 24px; }
@@ -303,6 +305,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mitem .ya { font-size: 15px; font-weight: 600; color: var(--muted); width: 174px; text-align: center; }
 .mitem .btn { width: 174px; height: 44px; }
 .modal-foot { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 26px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
+.inscripcion-dialog { width: min(100% - 32px, 480px); border: 0; color: var(--dark); }
+.inscripcion-dialog::backdrop { background: rgba(32, 41, 31, .45); }
+.inscripcion-dialog .modal-foot { justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
 
 /* ---------- Dropdown de prueba social (mockup 34) ---------- */
 .dropdown { position: relative; }
@@ -409,7 +414,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .cuota-card .cf:first-of-type { margin-top: 36px; }
 .cf-v.is-pendiente { color: #5C4A10; }
 .cuota-nota { margin-top: auto; margin-bottom: 26px; font-size: 14px; line-height: 1.21; font-weight: 600; color: var(--green); }
-.cuota-ver { margin-top: auto; width: 280px; }
+.cuota-ver { margin-top: auto; width: 210px; }
+.guardar-tarjeta { display: block; margin-top: 16px; }
+.tarjeta-guardada { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0; }
 .pagar-cuota { position: relative; margin-top: 24px; min-height: 184px; padding: 26px 132px 20px 32px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; column-gap: 36px; }
 .pagar-cuota h2 { font-size: 22px; line-height: 1.21; font-weight: 600; color: var(--green); }
 .pagar-cuota p { margin-top: 12px; font-size: 15px; line-height: 21px; color: var(--muted); max-width: 762px; }
@@ -555,12 +562,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .carrito-cant .inline-select { font-size: 16px; padding-left: 0; }
 .carrito-quitar { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); opacity: 0; transition: opacity .15s; }
 .carrito-tabla tr:hover .carrito-quitar, .carrito-quitar:focus-within { opacity: 1; }
-.carrito-grid { grid-template-columns: minmax(0, 656fr) minmax(0, 632fr); margin-top: 36px; }
+.carrito-grid { grid-template-columns: minmax(0, 656px); margin-top: 36px; }
 .carrito-card { min-height: 322px; padding-top: 24px; }
 .carrito-card .card-title { line-height: 1.21; }
 .carrito-card .cf { margin-top: 48px; }
 .carrito-card .cf:first-of-type { margin-top: 32px; }
-.carrito-confirmar { width: 270px; margin-top: 93px; }
+.carrito-resumen { display: flex; flex-wrap: wrap; gap: 24px 48px; margin-top: 32px; }
+.carrito-card .carrito-resumen .cf { margin-top: 0; }
+.carrito-descuento .field-label, .carrito-descuento .cf-v { color: var(--danger); }
+.carrito-total .field-label, .carrito-total .cf-v { font-weight: 700; }
+.carrito-confirmar { width: 270px; max-width: 100%; margin-top: 32px; }
 .carrito-confirmar[disabled] { opacity: .55; cursor: not-allowed; }
 .carrito-bottom { height: 74px; }
 
@@ -714,6 +725,9 @@ a.clasif-flecha:hover { background: var(--soft-3); }
 .salida-row .meta { margin-top: 17.75px; line-height: 1.21; }
 .salida-row .acciones { gap: 24px; margin-top: 26px; }
 .salida-row .ver { width: 164px; justify-content: center; padding: 0; }
+.inscripcion-acciones { display: flex; gap: 8px; }
+.salida-row .inscripcion-acciones { width: 234px; }
+.inscripcion-acciones > .btn { flex: 1; width: auto; justify-content: center; padding-inline: 12px; }
 .gestion-note { color: var(--green); }
 
 /* ---------- Detalle de salida (mockups 04, 27, 35) ---------- */
@@ -1175,7 +1189,7 @@ form.va-b1 > .btn { width: 100%; }
   .salida-row { flex-wrap: wrap; gap: 16px; padding: 18px; }
   .salida-row .date-box { width: 64px; height: 72px; }
   .salida-row h3 { font-size: 20px; }
-  .salida-row .acciones { width: 100%; gap: 8px; }
+  .salida-row .acciones { width: 100%; gap: 8px; flex-wrap: wrap; }
   .salida-row .acciones > * { flex: 1; }
   .salida-row .btn, .salida-row .ver { width: auto; justify-content: center; padding: 0 12px; }
   .form-grid, .fields-2 { grid-template-columns: 1fr; }

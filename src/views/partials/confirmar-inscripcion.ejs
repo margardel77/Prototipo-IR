@@ -1,0 +1,9 @@
+<dialog class="modal-box inscripcion-dialog" id="confirmar-inscripcion" aria-labelledby="inscripcion-titulo" aria-describedby="inscripcion-mensaje">
+  <h2 id="inscripcion-titulo"></h2>
+  <p class="modal-sub" id="inscripcion-mensaje"></p>
+  <form class="modal-foot" method="post">
+    <input type="hidden" name="volver" value="<%= volver %>">
+    <button class="btn btn-secondary" type="button" data-inscripcion-cancelar autofocus>Cancelar</button>
+    <button class="btn btn-primary" type="submit">Confirmar</button>
+  </form>
+</dialog>

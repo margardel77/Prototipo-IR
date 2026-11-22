@@ -22,15 +22,27 @@
       <div class="acciones">
         <a class="ver" href="/salidas/<%= s.id %>">Ver detalle</a>
         <% if (s.inscrito) { %>
-          <a class="btn btn-secondary" href="/salidas/<%= s.id %>">Apuntado</a>
+          <div class="inscripcion-acciones">
+            <a class="btn btn-secondary" href="/salidas/<%= s.id %>">Apuntado</a>
+            <% if (s.puedeDesapuntarse) { %>
+              <button class="btn btn-danger" type="button" aria-haspopup="dialog"
+                data-inscripcion-url="/salidas/<%= s.id %>/desapuntarme"
+                data-inscripcion-titulo="Cancelar inscripción"
+                data-inscripcion-mensaje="¿Quieres desapuntarte de la salida «<%= s.ruta_nombre %>» del <%= dates.corta(s.fecha) %>?">Cancelar</button>
+            <% } %>
+          </div>
         <% } else if (!s.plazo.abierto) { %>
           <span class="btn btn-secondary is-disabled" title="Plazo de consulta: del <%= dates.corta(s.plazo.apertura) %> al <%= dates.corta(dates.addDays(s.plazo.cierre, -1)) %>">Plazo cerrado</span>
         <% } else { %>
-          <form method="post" action="/salidas/<%= s.id %>/apuntarme"><button class="btn btn-primary" type="submit">Apuntarme</button></form>
+          <button class="btn btn-primary" type="button" aria-haspopup="dialog"
+            data-inscripcion-url="/salidas/<%= s.id %>/apuntarme"
+            data-inscripcion-mensaje="¿Quieres apuntarte a la salida «<%= s.ruta_nombre %>» del <%= dates.corta(s.fecha) %>?">Apuntarme</button>
         <% } %>
       </div>
     </article>
   <% }) %>
+
+  <%- include('../partials/confirmar-inscripcion', { volver: 'listado' }) %>
 
   <% if (permisos.length) { %>
     <div class="gestion-note">La gestión requiere una segunda identificación y permisos de junta directiva.</div>

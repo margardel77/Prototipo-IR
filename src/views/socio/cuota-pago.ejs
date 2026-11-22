@@ -5,6 +5,7 @@
   notaRecorrido: 'Tras el pago simulado, tu cuota quedará como abonada y<br>tu sesión seguirá abierta.',
   volverUrl: `/cuota?anio=${cuota.anio}`, volverTexto: 'Volver a Mi cuota', rechazadoUrl: `/cuota/pago/rechazado?anio=${cuota.anio}`,
   anio: cuota.anio, importe: cuota.importe, ocultos: { anio: cuota.anio },
+  tarjetaGuardada,
 }) %>
 <div class="page-bottom pago-bottom"></div>
 <%- include('../partials/bottom', { variant: 'socio' }) %>

@@ -32,6 +32,23 @@
     $$('[data-dropdown].is-open').forEach((d) => d.classList.remove('is-open'));
   });
 
+  // ---- Confirmación de altas y bajas de una salida ----
+  const inscripcion = $('#confirmar-inscripcion');
+  if (inscripcion) {
+    const formulario = $('form', inscripcion);
+    const titulo = $('#inscripcion-titulo', inscripcion);
+    const mensaje = $('#inscripcion-mensaje', inscripcion);
+    $('[data-inscripcion-cancelar]', inscripcion).addEventListener('click', () => inscripcion.close());
+    $$('[data-inscripcion-url]').forEach((boton) => {
+      boton.addEventListener('click', () => {
+        formulario.action = boton.dataset.inscripcionUrl;
+        titulo.textContent = boton.dataset.inscripcionTitulo || 'Confirmar inscripción';
+        mensaje.textContent = boton.dataset.inscripcionMensaje;
+        inscripcion.showModal();
+      });
+    });
+  }
+
   // ---- Desplegables ----
   $$('[data-dropdown]').forEach((d) => {
     const t = $('[data-dropdown-toggle]', d);

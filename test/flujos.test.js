@@ -84,6 +84,53 @@ test('registro en tres pasos: pago rechazado, pago aprobado, revisión y alta po
   assert.match(cuota.text, /Tarjeta \(simulación\)/);
 });
 
+test('guardar y reutilizar la tarjeta de prueba en pagos de cuotas', async () => {
+  const c = cliente();
+  await c.login('socioa@example.com');
+  const socio = db.get("SELECT id FROM socios WHERE email='socioa@example.com'");
+  db.run("INSERT INTO cuotas (socio_id, anio, importe, estado) VALUES (?, 2031, 30, 'PENDIENTE')", socio.id);
+  db.run("INSERT INTO cuotas (socio_id, anio, importe, estado) VALUES (?, 2032, 30, 'PENDIENTE')", socio.id);
+  const pago = await c.req('/cuota/pago', { method: 'POST', form: {
+    anio: '2031', titular: 'SOCIO A', numero: '4242424242424242', caducidad: '12/30', cvc: '123', guardar_tarjeta: '1',
+  } });
+  assert.equal(pago.location, '/cuota/pago/confirmacion');
+  assert.match((await c.req('/cuota?anio=2031')).text, /•••• •••• •••• 4242/);
+  assert.match((await c.req('/cuota/pago?anio=2032')).text, /Pagar con tarjeta guardada/);
+  assert.equal((await c.req('/cuota/pago', { method: 'POST', form: { anio: '2032', usar_guardada: '1' } })).location, '/cuota/pago/confirmacion');
+  assert.equal(db.get('SELECT estado FROM cuotas WHERE socio_id=? AND anio=2032', socio.id).estado, 'PAGADA');
+});
+
+test('desapuntarse solo está disponible con más de 24 horas de antelación', async (t) => {
+  const limite = Date.parse('2026-11-21T08:00:00Z');
+  t.mock.timers.enable({ apis: ['Date'], now: limite });
+  const a = cliente();
+  await a.login('socioa@example.com');
+  const salida = db.get("SELECT id FROM salidas WHERE fecha='2026-11-22'");
+  const detalle = `/salidas/${salida.id}`;
+  const accion = `${detalle}/desapuntarme`;
+  const inscripciones = () => db.get('SELECT COUNT(*) AS total FROM inscripciones WHERE salida_id=?', salida.id).total;
+  const totalInicial = inscripciones();
+  assert.doesNotMatch((await a.req(detalle)).text, /data-inscripcion-url="[^"]+\/desapuntarme"/);
+  const bloqueada = await a.req(accion, { method: 'POST', form: {} });
+  assert.equal(bloqueada.location, detalle);
+  assert.match((await a.req(detalle)).text, /más de 24 horas/);
+  assert.equal(inscripciones(), totalInicial);
+
+  t.mock.timers.setTime(limite - 1);
+  for (const pagina of ['/salidas', detalle]) {
+    const { text } = await a.req(pagina);
+    assert.match(text, /<div class="[^"]*inscripcion-acciones">\s*<[^>]+>Apuntado<\/[^>]+>\s*<button class="btn btn-danger"[^>]*>Cancelar<\/button>/);
+    assert.ok(text.includes(`data-inscripcion-url="${accion}"`));
+  }
+  const cancelada = await a.req(accion, { method: 'POST', form: { volver: 'listado', socio_id: 3 } });
+  assert.equal(cancelada.location, '/salidas');
+  assert.match((await a.req('/salidas')).text, /Has cancelado tu inscripción/);
+  assert.equal(inscripciones(), totalInicial - 1);
+  assert.equal(db.get('SELECT socio_id FROM inscripciones WHERE salida_id=?', salida.id).socio_id, 3);
+  assert.equal((await a.req(accion, { method: 'POST', form: {} })).location, detalle);
+  assert.equal(inscripciones(), totalInicial - 1);
+});
+
 test('socio: apuntarse, declarar con foto y la directiva valida (puntos y clasificación)', async () => {
   const ej = cliente();
   await ej.login('socio@example.com');

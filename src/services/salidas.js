@@ -185,7 +185,28 @@ function inscribir(salidaId, socioId, { origen = 'APP', hoy = dates.today() } = 
   return true;
 }
 
+function motivoNoDesapuntarse(s, socioId, ahora = Date.now()) {
+  if (!s || s.estado !== 'PUBLICADA') return 'Esta salida no está disponible.';
+  if (!(dates.instanteLocal(s.fecha, s.hora) - ahora > 24 * 60 * 60 * 1000)) {
+    return 'Solo puedes desapuntarte si faltan más de 24 horas para la salida.';
+  }
+  if (db.get('SELECT 1 FROM participaciones WHERE salida_id=? AND socio_id=?', s.id, socioId)) {
+    return 'Ya consta tu asistencia a esta salida.';
+  }
+  return null;
+}
+
+function desapuntar(salidaId, socioId, { ahora = Date.now() } = {}) {
+  return db.tx(() => {
+    if (!estaInscrito(salidaId, socioId)) return false;
+    const motivo = motivoNoDesapuntarse(obtener(salidaId), socioId, ahora);
+    if (motivo) throw new ReglaError(motivo);
+    db.run('DELETE FROM inscripciones WHERE salida_id=? AND socio_id=?', salidaId, socioId);
+    return true;
+  });
+}
+
 module.exports = {
   rutas, ruta, crearRuta, obtener, calendario, listarGestion, realizadas, pruebasSociales, estadoEfectivo,
-  publicar, modificar, cancelar, estaInscrito, inscritos, inscribir, plazoConsulta,
+  publicar, modificar, cancelar, estaInscrito, inscritos, inscribir, desapuntar, motivoNoDesapuntarse, plazoConsulta,
 };

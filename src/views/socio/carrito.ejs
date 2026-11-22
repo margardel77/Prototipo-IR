@@ -1,7 +1,7 @@
 <%- include('../partials/top', { variant: 'socio' }) %>
 <div class="container page carrito-page">
   <div class="page-head">
-    <h1>Carrito</h1>
+    <h1>Carrito <span aria-hidden="true">🛒</span></h1>
     <p class="sub">Revisa las prendas, las tallas y las cantidades antes de confirmar el pedido.</p>
   </div>
   <%- include('../partials/flash') %>
@@ -36,11 +36,11 @@
     <section class="card carrito-card">
       <h2 class="card-title">Resumen del pedido</h2>
       <div class="cf"><div class="field-label">Fecha</div><div class="cf-v"><%= dates.corta(dates.today()) %></div></div>
-      <div class="cf"><div class="field-label">Importe total</div><div class="cf-v"><%= fmt.euros(calculo.importe) %></div></div>
-    </section>
-    <section class="card carrito-card">
-      <h2 class="card-title">Descuento</h2>
-      <div class="cf"><div class="field-label">Descuento aplicado</div><div class="cf-v"><%= fmt.euros(calculo.descuento) %></div></div>
+      <div class="carrito-resumen">
+        <div class="cf"><div class="field-label">Importe</div><div class="cf-v"><%= fmt.euros(calculo.importe) %></div></div>
+        <div class="cf carrito-descuento"><div class="field-label">Descuento aplicado</div><div class="cf-v">−<%= fmt.euros(calculo.descuento) %></div></div>
+        <div class="cf carrito-total"><div class="field-label">Total</div><div class="cf-v"><%= fmt.euros(calculo.importe - calculo.descuento) %></div></div>
+      </div>
       <form method="post" action="/equipacion/pedido">
         <button class="btn btn-primary carrito-confirmar" type="submit"<%= lineas.length && campania ? '' : ' disabled' %>>Confirmar pedido</button>
       </form>
