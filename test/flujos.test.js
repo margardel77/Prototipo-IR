@@ -84,6 +84,22 @@ test('registro en tres pasos: pago rechazado, pago aprobado, revisión y alta po
   assert.match(cuota.text, /Tarjeta \(simulación\)/);
 });
 
+test('guardar y reutilizar la tarjeta de prueba en pagos de cuotas', async () => {
+  const c = cliente();
+  await c.login('socioa@example.com');
+  const socio = db.get("SELECT id FROM socios WHERE email='socioa@example.com'");
+  db.run("INSERT INTO cuotas (socio_id, anio, importe, estado) VALUES (?, 2031, 30, 'PENDIENTE')", socio.id);
+  db.run("INSERT INTO cuotas (socio_id, anio, importe, estado) VALUES (?, 2032, 30, 'PENDIENTE')", socio.id);
+  const pago = await c.req('/cuota/pago', { method: 'POST', form: {
+    anio: '2031', titular: 'SOCIO A', numero: '4242424242424242', caducidad: '12/30', cvc: '123', guardar_tarjeta: '1',
+  } });
+  assert.equal(pago.location, '/cuota/pago/confirmacion');
+  assert.match((await c.req('/cuota?anio=2031')).text, /•••• •••• •••• 4242/);
+  assert.match((await c.req('/cuota/pago?anio=2032')).text, /Pagar con tarjeta guardada/);
+  assert.equal((await c.req('/cuota/pago', { method: 'POST', form: { anio: '2032', usar_guardada: '1' } })).location, '/cuota/pago/confirmacion');
+  assert.equal(db.get('SELECT estado FROM cuotas WHERE socio_id=? AND anio=2032', socio.id).estado, 'PAGADA');
+});
+
 test('desapuntarse solo está disponible con más de 24 horas de antelación', async (t) => {
   const limite = Date.parse('2026-11-21T08:00:00Z');
   t.mock.timers.enable({ apis: ['Date'], now: limite });

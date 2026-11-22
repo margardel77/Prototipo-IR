@@ -20,6 +20,12 @@
         <h2 class="card-title">Pago y comprobante</h2>
         <div class="cf"><div class="field-label">Fecha de pago</div><div class="cf-v"><%= pagada ? dates.corta(cuota.fecha_pago) : '—' %></div></div>
         <div class="cf"><div class="field-label">Forma de pago</div><div class="cf-v"><%= pagada ? fmt.ETIQ.formaPago[cuota.forma_pago] : '—' %></div></div>
+        <% if (pagada && tarjetaPago) { %>
+          <div class="cf"><div class="field-label">Tarjeta utilizada</div><div class="cf-v">•••• •••• •••• <%= tarjetaPago.ultimos %></div></div>
+        <% } %>
+        <% if (tarjetaGuardada) { %>
+          <div class="cf"><div class="field-label">Tarjeta guardada</div><div class="cf-v">•••• •••• •••• <%= tarjetaGuardada.ultimos %></div></div>
+        <% } %>
         <div class="cf"><div class="field-label">Emisión del comprobante</div><div class="cf-v"><%= cuota.fecha_emision ? dates.corta(cuota.fecha_emision) : '—' %></div></div>
         <% if (pagada && cuota.comprobante_id) { %>
           <a class="btn btn-primary cuota-ver" href="/cuota/<%= cuota.anio %>/comprobante">Ver comprobante</a>

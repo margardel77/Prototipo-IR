@@ -56,6 +56,16 @@ CREATE TABLE IF NOT EXISTS comprobantes (
   mensaje TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS tarjetas_guardadas (
+  socio_id INTEGER PRIMARY KEY REFERENCES socios(id),
+  ultimos TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pagos_tarjeta (
+  cuota_id INTEGER PRIMARY KEY REFERENCES cuotas(id),
+  ultimos TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS cargos (
   id INTEGER PRIMARY KEY,
   socio_id INTEGER NOT NULL REFERENCES socios(id),

@@ -11,6 +11,7 @@ const fmt = require('../lib/format');
 const salidas = require('../services/salidas');
 const participacion = require('../services/participacion');
 const cuotas = require('../services/cuotas');
+const db = require('../db/database');
 const equipacion = require('../services/equipacion');
 const { requireSocio, flash, fechaReferencia } = require('../lib/middleware');
 const { ReglaError } = require('../lib/errors');
@@ -156,6 +157,8 @@ router.get('/cuota', requireSocio, (req, res) => {
   const { cuota, real, simulada } = cuotaDelSocio(req, req.query.anio);
   res.render('socio/cuota', {
     titulo: 'Mi cuota', nav: 'cuota', cuota, simulada,
+    tarjetaPago: cuota && db.get('SELECT ultimos FROM pagos_tarjeta WHERE cuota_id=?', cuota.id),
+    tarjetaGuardada: db.get('SELECT ultimos FROM tarjetas_guardadas WHERE socio_id=?', req.usuario.id),
     probar: config.demoTools && real && (real.estado === 'PAGADA' || simulada),
   });
 });
@@ -182,18 +185,29 @@ function validarTarjeta(body) {
 router.get('/cuota/pago', requireSocio, (req, res) => {
   const { cuota } = cuotaDelSocio(req, req.query.anio);
   if (!cuota || cuota.estado !== 'PENDIENTE' || cuota.estado_visible === 'BAJA') return res.redirect('/cuota');
-  res.render('socio/cuota-pago', { titulo: 'Paga tu cuota', nav: 'cuota', cuota, valores: { titular: `${req.usuario.nombre} ${req.usuario.apellidos}`.toUpperCase() } });
+  const tarjetaGuardada = db.get('SELECT ultimos FROM tarjetas_guardadas WHERE socio_id=?', req.usuario.id);
+  res.render('socio/cuota-pago', { titulo: 'Paga tu cuota', nav: 'cuota', cuota, tarjetaGuardada, valores: { titular: `${req.usuario.nombre} ${req.usuario.apellidos}`.toUpperCase() } });
 });
 
 router.post('/cuota/pago', requireSocio, (req, res) => {
   const { cuota, simulada } = cuotaDelSocio(req, req.body.anio);
   if (!cuota || cuota.estado !== 'PENDIENTE') return res.redirect('/cuota');
-  const { errores, digitos, valores } = validarTarjeta(req.body);
-  if (Object.keys(errores).length) return res.status(400).render('socio/cuota-pago', { titulo: 'Paga tu cuota', nav: 'cuota', cuota, errores, valores });
+  const tarjetaGuardada = db.get('SELECT ultimos FROM tarjetas_guardadas WHERE socio_id=?', req.usuario.id);
+  const tarjeta = req.body.usar_guardada && tarjetaGuardada
+    ? { errores: {}, digitos: tarjetaGuardada.ultimos, valores: {} }
+    : validarTarjeta(req.body);
+  const { errores, digitos, valores } = tarjeta;
+  if (Object.keys(errores).length) return res.status(400).render('socio/cuota-pago', { titulo: 'Paga tu cuota', nav: 'cuota', cuota, errores, valores, tarjetaGuardada });
   // Simulación: solo la tarjeta de prueba terminada en 4242 se acepta.
   if (!digitos.endsWith('4242')) return res.redirect(`/cuota/pago/rechazado?anio=${cuota.anio}`);
   if (simulada) req.session.cuotaPrueba = null; // ya estaba abonada: solo termina la prueba
-  else cuotas.pagarConTarjeta(req.usuario.id, cuota.anio);
+  else db.tx(() => {
+    cuotas.pagarConTarjeta(req.usuario.id, cuota.anio);
+    db.run('INSERT OR REPLACE INTO pagos_tarjeta (cuota_id, ultimos) VALUES (?,?)', cuota.id, digitos.slice(-4));
+  });
+  if (req.body.guardar_tarjeta) {
+    db.run('INSERT OR REPLACE INTO tarjetas_guardadas (socio_id, ultimos) VALUES (?,?)', req.usuario.id, digitos.slice(-4));
+  }
   req.session.renovacionOk = { anio: cuota.anio, importe: cuota.importe, tarjeta: digitos.slice(-4) };
   return res.redirect('/cuota/pago/confirmacion');
 });
