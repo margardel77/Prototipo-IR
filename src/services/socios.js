@@ -86,7 +86,7 @@ function crearSolicitud(d, pagoSimulado) {
 }
 
 // Alta directa por la directiva (mockup «Nuevo socio»): queda activo con el siguiente número libre
-// y con la cuota del año pendiente, que se abona por banco, en efectivo o desde «Mi cuota».
+// y con la cuota del año pendiente, que se abona en efectivo o con tarjeta desde «Mi cuota».
 function crearDirecto(d, actorId, hoy = dates.today()) {
   const { errores, fechaNacimiento } = validarDatos(d, { conPassword: true });
   if (!errores.email && porEmail(d.email)) errores.email = 'Ya existe una cuenta con ese correo electrónico.';
@@ -105,7 +105,7 @@ function crearDirecto(d, actorId, hoy = dates.today()) {
     db.run("INSERT INTO cuotas (socio_id, anio, importe, estado, registrado_por) VALUES (?,?,?,'PENDIENTE',?)", id, anio, cuotas.importeAnio(anio), actorId || null);
     com.enviarEmail(d.email.trim(), 'Bienvenido al Club Ciclista de Brenes',
       `Hola, ${d.nombre.trim()}:\n\nLa directiva te ha dado de alta en el club con el número de socio ${numero}. Ya puedes iniciar sesión en el área de socios con este correo.\n` +
-      `Tu cuota de ${anio} está pendiente: puedes abonarla por banco, en efectivo en la sede o desde «Mi cuota».`);
+      `Tu cuota de ${anio} está pendiente: puedes abonarla en efectivo en la sede o con tarjeta desde «Mi cuota».`);
     return { id, numero };
   });
 }

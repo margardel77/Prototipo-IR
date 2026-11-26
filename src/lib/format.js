@@ -23,7 +23,7 @@ const nombreCompleto = (s) => (s ? `${s.nombre} ${s.apellidos}`.trim() : '');
 const inicial = (s) => (s.apellidos || s.nombre || '?').trim().charAt(0).toUpperCase();
 
 const ETIQ = {
-  formaPago: { BANCO: 'Banco', EFECTIVO: 'Efectivo', TARJETA: 'Tarjeta (simulación)' },
+  formaPago: { BANCO: 'Banco', EFECTIVO: 'Efectivo', TARJETA: 'Tarjeta' },
   estadoCuota: { PAGADA: 'Abonada', PENDIENTE: 'Pendiente', BAJA: 'Baja' },
   estadoSocio: { ACTIVO: 'Activo', BAJA: 'Baja', PENDIENTE: 'Pendiente de revisión' },
   tipoSalida: { SEMANAL: 'Semanal', ESPECIAL: 'Especial', PRUEBA_SOCIAL: 'Prueba social' },

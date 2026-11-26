@@ -246,7 +246,7 @@ router.get('/cuota/:anio/comprobante.pdf', requireSocio, (req, res) => {
       ['Forma de pago', fmt.ETIQ.formaPago[c.forma_pago]],
     ],
     importe: { concepto: `Cuota anual ${c.anio} · Abonada`, valor: fmt.euros(c.importe) },
-    nota: [c.forma_pago === 'TARJETA' ? 'Pago simulado con la tarjeta de prueba: sin transacción bancaria real.' : 'Pago registrado por la tesorería del club.'],
+    nota: [db.get('SELECT 1 FROM pagos_tarjeta WHERE cuota_id=?', c.id) ? 'Pago simulado con la tarjeta de prueba: sin transacción bancaria real.' : 'Pago registrado por la tesorería del club.'],
   });
   res.set('Content-Type', 'application/pdf');
   res.set('Content-Disposition', `attachment; filename="comprobante-cuota-${c.anio}.pdf"`);

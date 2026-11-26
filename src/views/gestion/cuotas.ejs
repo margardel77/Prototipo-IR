@@ -44,7 +44,7 @@
               <td><%= fmt.euros(c.importe) %></td>
               <td><span class="ct-pill <%= pillCls[c.estado_visible] %>"><%= fmt.ETIQ.estadoCuota[c.estado_visible] %></span></td>
               <td><%= c.fecha_pago ? dates.corta(c.fecha_pago) : '—' %></td>
-              <td><%= c.forma_pago ? fmt.ETIQ.formaPago[c.forma_pago] : '—' %></td>
+              <td><%= c.forma_pago === 'TARJETA' ? 'Banco' : (c.forma_pago ? fmt.ETIQ.formaPago[c.forma_pago] : '—') %></td>
               <td>
                 <% if (c.estado_visible === 'PENDIENTE') { %>
                   <a class="btn btn-primary ct-registrar" href="/gestion/cuotas?anio=<%= anio %>&cuota=<%= c.id %>#registrar">Registrar pago</a>
@@ -76,7 +76,7 @@
           <label class="reg-l" for="forma">Forma de pago</label>
           <select class="reg-input reg-select" id="forma" name="forma"<%= sel ? '' : ' disabled' %>>
             <option value="EFECTIVO" <%= v.forma === 'EFECTIVO' ? 'selected' : '' %>>Efectivo</option>
-            <option value="BANCO" <%= v.forma === 'BANCO' ? 'selected' : '' %>>Banco</option>
+            <option value="TARJETA" <%= v.forma === 'TARJETA' ? 'selected' : '' %>>Tarjeta</option>
           </select>
         </div>
         <div>
@@ -91,7 +91,7 @@
     </section>
     <section class="card card--soft control">
       <h2>Control de cuotas</h2>
-      <p>Registra únicamente un pago que ya hayas recibido por banco<br>o en efectivo. Al guardar, la cuota pasa a Abonada y se emite el<br>comprobante.</p>
+      <p>Registra únicamente un pago que ya hayas recibido con tarjeta o en efectivo. Al guardar, la cuota pasa a Abonada y se emite el comprobante.</p>
       <div class="reg-l control-l">Estado actual</div>
       <% if (sel) { %><span class="ct-pill is-pendiente control-pill">Pendiente</span><% } else { %><span class="control-vacio">—</span><% } %>
       <button class="btn btn-primary btn-block control-guardar" type="submit" form="form-pago"<%= sel ? '' : ' disabled' %>>Guardar pago</button>

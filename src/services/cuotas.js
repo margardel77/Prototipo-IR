@@ -81,13 +81,13 @@ function emitirComprobante(cuotaId, hoy = dates.today()) {
   return obtener(cuotaId);
 }
 
-// La tesorería registra un pago ya recibido por banco o en efectivo (mockup «Cuotas de socios»).
+// La tesorería registra un pago ya recibido en efectivo o con tarjeta.
 function registrarPago(cuotaId, { fecha, forma, estado = 'PAGADA' }, registradoPor) {
   if (estado !== 'PAGADA') throw new ReglaError('Para registrar el pago, marca la cuota como abonada.');
   const fechaPago = dates.parseFecha(fecha);
   if (!fechaPago) throw new ReglaError('Indica una fecha de pago válida (por ejemplo, 12 nov 2026).');
   if (fechaPago > dates.today()) throw new ReglaError('La fecha de pago no puede ser posterior a hoy.');
-  if (!['BANCO', 'EFECTIVO'].includes(forma)) throw new ReglaError('La forma de pago debe ser banco o efectivo.');
+  if (!['TARJETA', 'EFECTIVO'].includes(forma)) throw new ReglaError('La forma de pago debe ser tarjeta o efectivo.');
   return db.tx(() => {
     const c = obtener(cuotaId);
     if (!c) throw new ReglaError('La cuota seleccionada no existe.');
@@ -149,7 +149,7 @@ function enviarRecordatorios(anio) {
   for (const c of pendientes) {
     com.enviarEmail(c.email, `Recordatorio: renueva tu cuota ${anio}`,
       `Hola, ${c.nombre}:\n\nTu cuota anual ${anio} (${fmt.euros(c.importe)}) sigue pendiente. La fecha límite de renovación es el 30 de marzo.\n` +
-      'Puedes pagarla por banco o en efectivo en la sede del club. Si no la abonas en plazo pasarás a estado de baja y perderás tu número de socio.');
+      'Puedes pagarla con tarjeta desde «Mi cuota» o en efectivo en la sede del club. Si no la abonas en plazo pasarás a estado de baja y perderás tu número de socio.');
   }
   return pendientes.length;
 }

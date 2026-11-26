@@ -81,7 +81,7 @@ test('registro en tres pasos: pago rechazado, pago aprobado, revisión y alta po
   assert.equal((await nuevo.login('lucia@example.com', 'clave-segura')).location, '/salidas');
   const cuota = await nuevo.req('/cuota');
   assert.match(cuota.text, /Abonada/);
-  assert.match(cuota.text, /Tarjeta \(simulación\)/);
+  assert.match(cuota.text, /Tarjeta/);
 });
 
 test('guardar y reutilizar la tarjeta de prueba en pagos de cuotas', async () => {
