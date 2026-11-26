@@ -58,7 +58,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .topbar--public .brand-name, .topbar--acceso .brand-name { font-size: 21px; top: -2px; }
 /* Las pestañas tienen el ancho exacto de los mockups y terminan a 32 px (socio) o 68 px (gestión) del botón (16 px de gap + margen) */
 .nav { display: flex; align-items: center; gap: 8px; margin-left: auto; margin-right: 16px; }
-.topbar--gestion .nav { margin-right: 52px; }
+.topbar--gestion .nav { margin-right: 0; }
 .nav a { height: 42px; padding: 0; border-radius: var(--radius); display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: var(--white); white-space: nowrap; transition: background .15s; }
 .nav a:hover { background: #2C3729; }
 .nav a.is-active { background: var(--nav-active); }
@@ -69,6 +69,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .topbar--public .topbar-cta { width: 196px; }
 .topbar-tag { margin-left: auto; width: 186px; color: var(--lime); font-size: 15px; font-weight: 500; white-space: nowrap; }
 .menu-toggle { display: none; margin-left: auto; background: transparent; border: 1px solid #3E4B37; color: var(--white); border-radius: var(--radius); height: 42px; padding: 0 14px; font-weight: 600; cursor: pointer; }
+.topbar--socio .nav, .topbar--gestion .nav { margin-right: 0; gap: 0; }
+.topbar--socio .nav a, .topbar--gestion .nav a { width: auto !important; padding: 0 12px; }
+.topbar--socio .topbar-cta, .topbar--gestion .topbar-cta { width: auto; padding: 0 16px; }
+.topbar-logout { margin: 0; flex-shrink: 0; }
+.topbar-logout .logout { border: 0; border-radius: var(--radius); background: transparent; color: var(--white); padding: 0 12px; height: 44px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.topbar-logout .logout:hover { background: #2C3729; }
 
 /* ---------- Botones ---------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 28px; border-radius: var(--radius); border: 0; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; white-space: nowrap; transition: background .15s, filter .15s; color: var(--dark); background: transparent; }
@@ -112,7 +118,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .grid-main-side { grid-template-columns: minmax(0, 824fr) minmax(0, 464fr); }
 .grid-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .grid-ficha { grid-template-columns: minmax(0, 612fr) minmax(0, 676fr); }
-.grid-cuota { grid-template-columns: minmax(0, 1fr); }
+.grid-cuota { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
 .grid-comprobante { grid-template-columns: minmax(0, 940fr) minmax(0, 336fr); gap: 36px; }
 .stretch > .card { align-self: stretch; }
 .stack { display: flex; flex-direction: column; gap: 24px; }
@@ -203,10 +209,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ---------- Pie ---------- */
 .footer { margin-top: auto; }
-.footer-area .container { border-top: 1px solid var(--line); display: grid; grid-template-columns: 436px 1fr auto; align-items: center; min-height: 90px; padding: 13px 0 32px; font-size: 13px; color: var(--muted); }
-.footer-area form { margin: 0; }
-.footer-area .logout { height: 44px; width: 160px; border: 0; background: transparent; font-size: 15px; font-weight: 600; color: var(--green); cursor: pointer; border-radius: var(--radius); }
-.footer-area .logout:hover { background: var(--soft); }
+.footer-area .container { border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr auto; align-items: center; min-height: 90px; padding: 13px 0 32px; font-size: 13px; color: var(--muted); }
+.footer-area .container > :nth-child(2) { text-align: right; }
 .footer-auth .container { border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: flex-start; min-height: 96px; padding: 30.5px 0 0; font-size: 13px; color: var(--muted); }
 .footer-auth .right { font-size: 12px; width: 276px; margin-right: 0; }
 .footer-public { background: var(--dark); color: var(--white); }
@@ -415,6 +419,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .cf-v.is-pendiente { color: #5C4A10; }
 .cuota-nota { margin-top: auto; margin-bottom: 26px; font-size: 14px; line-height: 1.21; font-weight: 600; color: var(--green); }
 .cuota-ver { margin-top: auto; width: 210px; }
+.cuota-tarjeta { margin-top: 16px; }
+.cuota-tarjeta summary { width: fit-content; cursor: pointer; list-style: none; }
+.cuota-tarjeta summary::-webkit-details-marker { display: none; }
+.cuota-tarjeta p { margin-top: 12px; color: var(--dark); }
 .guardar-tarjeta { display: block; margin-top: 16px; }
 .tarjeta-guardada { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0; }
 .pagar-cuota { position: relative; margin-top: 24px; min-height: 184px; padding: 26px 132px 20px 32px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; column-gap: 36px; }
@@ -1160,10 +1168,9 @@ form.va-b1 > .btn { width: 100%; }
   .ruta-side .estado { padding-left: 0; }
   .ruta-side .need { padding-right: 0; }
   .footer-area .container { grid-template-columns: 1fr auto; row-gap: 4px; }
-  .footer-area .container > :nth-child(2) { grid-row: 2; }
-  .footer-area .container > :nth-child(3) { grid-row: 1 / span 2; grid-column: 2; }
 }
 @media (max-width: 720px) {
+  .topbar--socio .brand-name, .topbar--gestion .brand-name { display: none; }
   .page { padding-top: 28px; }
   .page-head { margin-bottom: 28px; }
   .page-head h1 { font-size: 30px; }

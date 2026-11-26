@@ -62,6 +62,8 @@
           <% if (motivoNoDesapuntarse) { %>
             <p class="muted small det-plazo"><%= motivoNoDesapuntarse %></p>
           <% } %>
+        <% } else if (pasada) { %>
+          <span class="btn btn-secondary btn-block is-disabled det-btn1">Salida realizada</span>
         <% } else if (!plazo.abierto) { %>
           <span class="btn btn-secondary btn-block is-disabled det-btn1">Plazo cerrado</span>
           <p class="muted small det-plazo">En las salidas especiales puedes apuntarte del <%= dates.corta(plazo.apertura) %> al <%= dates.corta(dates.addDays(plazo.cierre, -1)) %>.</p>

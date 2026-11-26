@@ -50,6 +50,9 @@
       </nav>
       <a class="btn btn-primary topbar-cta" href="/gestion/volver">Volver al área de socio</a>
     <% } %>
+    <% if (vt === 'socio' || vt === 'gestion') { %>
+      <form class="topbar-logout" method="post" action="/salir"><button class="logout" type="submit">Cerrar sesión</button></form>
+    <% } %>
   </div>
 </header>
 <main>

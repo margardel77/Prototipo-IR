@@ -85,14 +85,6 @@ test('plazo de consulta de salidas especiales (REGN-009)', () => {
   assert.equal(salidas.plazoConsulta(s, '2026-12-13').abierto, false);
 });
 
-test('el plazo para desapuntarse usa horas reales durante el cambio de hora', () => {
-  const salida = { fecha: '2026-03-29', hora: '09:00', estado: 'PUBLICADA', id: 0 };
-  const sabadoPrimavera = Date.parse('2026-03-28T07:30:00Z'); // 08:30 local, 23 h 30 min antes
-  assert.match(salidas.motivoNoDesapuntarse(salida, 1, sabadoPrimavera), /más de 24 horas/);
-  const sabadoOtono = Date.parse('2026-10-24T07:30:00Z'); // 09:30 local, 24 h 30 min antes
-  assert.equal(salidas.motivoNoDesapuntarse({ ...salida, fecha: '2026-10-25' }, 1, sabadoOtono), null);
-});
-
 test('una sola declaración por socio y salida (REGN-010)', () => {
   const s15 = salidas.calendario({ hoy: '2026-11-20' }).find((s) => s.fecha === '2026-11-15');
   const a = socios.porEmail('socioa@example.com');

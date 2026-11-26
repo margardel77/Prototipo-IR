@@ -178,6 +178,7 @@ function inscribir(salidaId, socioId, { origen = 'APP', hoy = dates.today() } = 
   if (!socio || socio.estado !== 'ACTIVO') throw new ReglaError('Solo los socios activos pueden apuntarse a las salidas.');
   if (estaInscrito(salidaId, socioId)) return false;
   if (origen === 'APP') {
+    if (hoy > s.fecha) throw new ReglaError('Esta salida ya ha tenido lugar.');
     const p = plazoConsulta(s, hoy);
     if (!p.abierto) throw new ReglaError(`El plazo para apuntarse a esta salida especial va del ${dates.corta(p.apertura)} al ${dates.corta(dates.addDays(p.cierre, -1))}.`);
   }
@@ -185,21 +186,19 @@ function inscribir(salidaId, socioId, { origen = 'APP', hoy = dates.today() } = 
   return true;
 }
 
-function motivoNoDesapuntarse(s, socioId, ahora = Date.now()) {
+function motivoNoDesapuntarse(s, socioId, hoy = dates.today()) {
   if (!s || s.estado !== 'PUBLICADA') return 'Esta salida no está disponible.';
-  if (!(dates.instanteLocal(s.fecha, s.hora) - ahora > 24 * 60 * 60 * 1000)) {
-    return 'Solo puedes desapuntarte si faltan más de 24 horas para la salida.';
-  }
+  if (hoy > s.fecha) return 'Esta salida ya ha tenido lugar.';
   if (db.get('SELECT 1 FROM participaciones WHERE salida_id=? AND socio_id=?', s.id, socioId)) {
     return 'Ya consta tu asistencia a esta salida.';
   }
   return null;
 }
 
-function desapuntar(salidaId, socioId, { ahora = Date.now() } = {}) {
+function desapuntar(salidaId, socioId, { hoy = dates.today() } = {}) {
   return db.tx(() => {
     if (!estaInscrito(salidaId, socioId)) return false;
-    const motivo = motivoNoDesapuntarse(obtener(salidaId), socioId, ahora);
+    const motivo = motivoNoDesapuntarse(obtener(salidaId), socioId, hoy);
     if (motivo) throw new ReglaError(motivo);
     db.run('DELETE FROM inscripciones WHERE salida_id=? AND socio_id=?', salidaId, socioId);
     return true;

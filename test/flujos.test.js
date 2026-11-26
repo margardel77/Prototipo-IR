@@ -100,7 +100,7 @@ test('guardar y reutilizar la tarjeta de prueba en pagos de cuotas', async () =>
   assert.equal(db.get('SELECT estado FROM cuotas WHERE socio_id=? AND anio=2032', socio.id).estado, 'PAGADA');
 });
 
-test('desapuntarse solo está disponible con más de 24 horas de antelación', async (t) => {
+test('desapuntarse está disponible dentro de las 24 horas anteriores', async (t) => {
   const limite = Date.parse('2026-11-21T08:00:00Z');
   t.mock.timers.enable({ apis: ['Date'], now: limite });
   const a = cliente();
@@ -110,13 +110,7 @@ test('desapuntarse solo está disponible con más de 24 horas de antelación', a
   const accion = `${detalle}/desapuntarme`;
   const inscripciones = () => db.get('SELECT COUNT(*) AS total FROM inscripciones WHERE salida_id=?', salida.id).total;
   const totalInicial = inscripciones();
-  assert.doesNotMatch((await a.req(detalle)).text, /data-inscripcion-url="[^"]+\/desapuntarme"/);
-  const bloqueada = await a.req(accion, { method: 'POST', form: {} });
-  assert.equal(bloqueada.location, detalle);
-  assert.match((await a.req(detalle)).text, /más de 24 horas/);
-  assert.equal(inscripciones(), totalInicial);
-
-  t.mock.timers.setTime(limite - 1);
+  t.mock.timers.setTime(limite + 60 * 60 * 1000);
   for (const pagina of ['/salidas', detalle]) {
     const { text } = await a.req(pagina);
     assert.match(text, /<div class="[^"]*inscripcion-acciones">\s*<[^>]+>Apuntado<\/[^>]+>\s*<button class="btn btn-danger"[^>]*>Cancelar<\/button>/);
@@ -131,10 +125,29 @@ test('desapuntarse solo está disponible con más de 24 horas de antelación', a
   assert.equal(inscripciones(), totalInicial - 1);
 });
 
+test('una salida pasada impide apuntarse y cancelar con la fecha de prueba', async () => {
+  const salida = db.get("SELECT id FROM salidas WHERE fecha='2026-11-22'").id;
+  const detalle = `/salidas/${salida}`;
+  const inscrito = cliente();
+  await inscrito.login('sociob@example.com');
+  await inscrito.req(`${detalle}/fecha-prueba`, { method: 'POST', form: { modo: 'despues' } });
+  assert.doesNotMatch((await inscrito.req(detalle)).text, /data-inscripcion-url="[^"]+\/desapuntarme"/);
+  await inscrito.req(`${detalle}/desapuntarme`, { method: 'POST', form: {} });
+  assert.match((await inscrito.req(detalle)).text, /Esta salida ya ha tenido lugar/);
+
+  const nuevo = cliente();
+  await nuevo.login('socioc@example.com');
+  await nuevo.req(`${detalle}/fecha-prueba`, { method: 'POST', form: { modo: 'despues' } });
+  assert.match((await nuevo.req(detalle)).text, /Salida realizada/);
+  await nuevo.req(`${detalle}/apuntarme`, { method: 'POST', form: {} });
+  assert.match((await nuevo.req(detalle)).text, /Esta salida ya ha tenido lugar/);
+});
+
 test('socio: apuntarse, declarar con foto y la directiva valida (puntos y clasificación)', async () => {
   const ej = cliente();
   await ej.login('socio@example.com');
   const s15 = db.get("SELECT id FROM salidas WHERE fecha='2026-11-15'").id;
+  await ej.req(`/salidas/${s15}/fecha-prueba`, { method: 'POST', form: { modo: 'antes' } });
   assert.equal((await ej.req(`/salidas/${s15}/apuntarme`, { method: 'POST', form: {} })).location, `/salidas/${s15}/inscripcion`);
   assert.match((await ej.req(`/salidas/${s15}/inscripcion`)).text, /Inscripción registrada/);
 

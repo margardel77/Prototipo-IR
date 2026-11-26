@@ -1,8 +1,10 @@
 <%- include('../partials/top', { variant: 'socio' }) %>
 <div class="container page">
   <div class="page-head">
-    <h1>Salidas del club</h1>
-    <p class="sub">Consulta el recorrido y apúntate a la salida en la que quieras participar.</p>
+    <div>
+      <h1>Salidas del club</h1>
+      <p class="sub">Consulta el recorrido y apúntate a la salida en la que quieras participar.</p>
+    </div>
   </div>
   <%- include('../partials/flash') %>
 
@@ -31,6 +33,8 @@
                 data-inscripcion-mensaje="¿Quieres desapuntarte de la salida «<%= s.ruta_nombre %>» del <%= dates.corta(s.fecha) %>?">Cancelar</button>
             <% } %>
           </div>
+        <% } else if (s.pasada) { %>
+          <span class="btn btn-secondary is-disabled">Salida realizada</span>
         <% } else if (!s.plazo.abierto) { %>
           <span class="btn btn-secondary is-disabled" title="Plazo de consulta: del <%= dates.corta(s.plazo.apertura) %> al <%= dates.corta(dates.addDays(s.plazo.cierre, -1)) %>">Plazo cerrado</span>
         <% } else { %>

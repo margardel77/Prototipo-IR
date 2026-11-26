@@ -43,11 +43,11 @@ function cargarSalida(req, res, next) {
 
 // ---- Salidas ----
 router.get('/salidas', requireSocio, (req, res) => {
-  const ahora = Date.now();
   const lista = salidas.calendario({ socioId: req.usuario.id }).map((s) => {
     const inscrito = salidas.estaInscrito(s.id, req.usuario.id);
-    const puedeDesapuntarse = inscrito && !salidas.motivoNoDesapuntarse(s, req.usuario.id, ahora);
-    return { ...s, inscrito, puedeDesapuntarse, plazo: salidas.plazoConsulta(s, dates.today()) };
+    const hoy = fechaReferencia(req, s.id).fecha;
+    const puedeDesapuntarse = inscrito && !salidas.motivoNoDesapuntarse(s, req.usuario.id, hoy);
+    return { ...s, inscrito, puedeDesapuntarse, pasada: hoy > s.fecha, plazo: salidas.plazoConsulta(s, hoy) };
   });
   res.render('socio/salidas', { titulo: 'Salidas del club', nav: 'salidas', salidas: lista, grupos: agruparPorMes(lista) });
 });
@@ -56,14 +56,15 @@ router.get('/salidas/:id', requireSocio, cargarSalida, (req, res) => {
   res.render('socio/detalle', {
     titulo: req.salida.ruta_nombre, nav: 'salidas',
     inscritos: salidas.inscritos(req.salida.id),
-    plazo: salidas.plazoConsulta(req.salida, dates.today()),
-    motivoNoDesapuntarse: res.locals.decl.inscrito ? salidas.motivoNoDesapuntarse(req.salida, req.usuario.id) : null,
+    plazo: salidas.plazoConsulta(req.salida, req.fechaRef),
+    pasada: req.fechaRef > req.salida.fecha,
+    motivoNoDesapuntarse: res.locals.decl.inscrito ? salidas.motivoNoDesapuntarse(req.salida, req.usuario.id, req.fechaRef) : null,
   });
 });
 
 router.post('/salidas/:id/apuntarme', requireSocio, cargarSalida, (req, res) => {
   try {
-    salidas.inscribir(req.salida.id, req.usuario.id, { origen: 'APP' });
+    salidas.inscribir(req.salida.id, req.usuario.id, { origen: 'APP', hoy: req.fechaRef });
   } catch (e) {
     if (e instanceof ReglaError) { flash(req, 'error', e.message); return res.redirect(`/salidas/${req.salida.id}`); }
     throw e;
@@ -80,7 +81,7 @@ router.post('/salidas/:id/desapuntarme', requireSocio, cargarSalida, (req, res) 
   const detalle = `/salidas/${req.salida.id}`;
   const volver = req.body.volver === 'listado' ? '/salidas' : detalle;
   try {
-    if (salidas.desapuntar(req.salida.id, req.usuario.id)) {
+    if (salidas.desapuntar(req.salida.id, req.usuario.id, { hoy: req.fechaRef })) {
       flash(req, 'ok', 'Has cancelado tu inscripción a la salida.');
     }
   } catch (e) {

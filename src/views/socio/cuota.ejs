@@ -8,24 +8,25 @@
   <% if (!cuota) { %>
     <div class="empty">Todavía no tienes ninguna cuota registrada.</div>
   <% } else { const pagada = cuota.estado === 'PAGADA'; %>
-    <div class="grid grid-cuota stretch">
-      <section class="card cuota-card">
+    <div class="card grid grid-cuota">
+      <section class="cuota-card">
         <h2 class="card-title">Cuota anual</h2>
         <div class="cf"><div class="field-label">Ejercicio</div><div class="cf-v"><%= cuota.anio %></div></div>
         <div class="cf"><div class="field-label">Importe</div><div class="cf-v"><%= fmt.euros(cuota.importe) %></div></div>
         <div class="cf"><div class="field-label">Estado</div><div class="cf-v<%= pagada ? '' : ' is-pendiente' %>"><%= fmt.ETIQ.estadoCuota[cuota.estado_visible] %></div></div>
         <div class="cuota-nota"><%= pagada ? 'Cuota al corriente' : 'Pendiente de pago · Abónala antes del 30 de marzo' %></div>
       </section>
-      <section class="card cuota-card">
+      <section class="cuota-card">
         <h2 class="card-title">Pago y comprobante</h2>
         <div class="cf"><div class="field-label">Fecha de pago</div><div class="cf-v"><%= pagada ? dates.corta(cuota.fecha_pago) : '—' %></div></div>
         <div class="cf"><div class="field-label">Forma de pago</div><div class="cf-v"><%= pagada ? fmt.ETIQ.formaPago[cuota.forma_pago] : '—' %></div></div>
         <% if (pagada && tarjetaPago) { %>
           <div class="cf"><div class="field-label">Tarjeta utilizada</div><div class="cf-v">•••• •••• •••• <%= tarjetaPago.ultimos %></div></div>
         <% } %>
-        <% if (tarjetaGuardada) { %>
-          <div class="cf"><div class="field-label">Tarjeta guardada</div><div class="cf-v">•••• •••• •••• <%= tarjetaGuardada.ultimos %></div></div>
-        <% } %>
+        <details class="cuota-tarjeta">
+          <summary class="btn btn-white">Ver tarjeta vinculada</summary>
+          <p><%= tarjetaGuardada ? `•••• •••• •••• ${tarjetaGuardada.ultimos}` : 'No tienes ninguna tarjeta vinculada.' %></p>
+        </details>
         <div class="cf"><div class="field-label">Emisión del comprobante</div><div class="cf-v"><%= cuota.fecha_emision ? dates.corta(cuota.fecha_emision) : '—' %></div></div>
         <% if (pagada && cuota.comprobante_id) { %>
           <a class="btn btn-primary cuota-ver" href="/cuota/<%= cuota.anio %>/comprobante">Ver comprobante</a>
